@@ -1,1 +1,5 @@
 *.coffee
+.htaccess
+404.html
+favicon.ico
+robots.txt
