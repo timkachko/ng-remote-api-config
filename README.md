@@ -13,7 +13,7 @@ Running `grunt test` will run the unit tests with karma.
 
 ## To Do 
 
-(List)[TODO.md]
+[List](TODO.md)
 
 
 
