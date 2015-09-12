@@ -1,6 +1,6 @@
 // Karma configuration
 // http://karma-runner.github.io/0.12/config/configuration-file.html
-// Generated on 2015-09-12 using
+// Generated on 2015-07-06 using
 // generator-karma 0.9.0
 
 module.exports = function(config) {
@@ -8,7 +8,7 @@ module.exports = function(config) {
 
   config.set({
     // enable / disable watching file and executing tests whenever any file changes
-    autoWatch: true,
+    // autoWatch: true,
 
     // base path, that will be used to resolve files and exclude
     basePath: '../',
@@ -19,10 +19,28 @@ module.exports = function(config) {
     // list of files / patterns to load in the browser
     files: [
       // bower:js
+      'bower_components/jquery/dist/jquery.js',
       'bower_components/angular/angular.js',
+      'bower_components/angular-cookies/angular-cookies.js',
+      'bower_components/angular-resource/angular-resource.js',
+      'bower_components/angular-route/angular-route.js',
+      'bower_components/angular-sanitize/angular-sanitize.js',
+      'bower_components/angular-touch/angular-touch.js',
+      'bower_components/angular-ui-router/release/angular-ui-router.js',
+      'bower_components/angular-validation-match/dist/angular-validation-match.min.js',
+      'bower_components/bootstrap-sass-official/assets/javascripts/bootstrap.js',
+      'bower_components/hammerjs/hammer.js',
+      'bower_components/lodash/lodash.js',
+      'bower_components/lodash-angular-wrapper/lodash-angular-wrapper.js',
+      'bower_components/moment/moment.js',
+      'bower_components/ngprogress/build/ngProgress.js',
+      'bower_components/ryanmullins-angular-hammer/angular.hammer.js',
+      'bower_components/sass-bootstrap/dist/js/bootstrap.js',
+      'bower_components/wp-idnt-module/wp-idnt-module.js',
       'bower_components/angular-mocks/angular-mocks.js',
       // endbower
       'app/scripts/**/*.js',
+      'module/**/*.js',
       'test/mock/**/*.js',
       'test/spec/**/*.js'
     ],
@@ -42,13 +60,15 @@ module.exports = function(config) {
     // - Safari (only Mac)
     // - PhantomJS
     // - IE (only Windows)
-    browsers: [
-      'PhantomJS'
-    ],
+
+    browsers: ['Chrome'],
+
+    // please don't die (for running repeatedly)
+    browserNoActivityTimeout: 60000,
 
     // Which plugins to enable
     plugins: [
-      'karma-phantomjs-launcher',
+      'karma-chrome-launcher',
       'karma-jasmine'
     ],
 
@@ -67,6 +87,6 @@ module.exports = function(config) {
     //   '/': 'http://localhost:9000/'
     // },
     // URL root prevent conflicts with the site root
-    // urlRoot: '_karma_'
+     urlRoot: '_karma_'
   });
 };
