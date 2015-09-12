@@ -1,7 +1,7 @@
 /**
  * Created by dkachko on 9/1/15.
  */
-angular.module('partnerApp').
+angular.module('ngRemoteApiConfig', ['lodashAngularWrapper']).
     factory('apiConfigService', function (ENV, $http, $log, _, $q, $) {
         'use strict';
 

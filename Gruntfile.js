@@ -18,6 +18,7 @@ module.exports = function (grunt) {
   // Configurable paths for the application
   var appConfig = {
     app: require('./bower.json').appPath || 'app',
+    module: require('./bower.json').modulePath || 'module',
     dist: 'dist'
   };
 
@@ -85,7 +86,11 @@ module.exports = function (grunt) {
                 '/app/styles',
                 connect.static('./app/styles')
               ),
-              connect.static(appConfig.app)
+              connect().use(
+                '/module',
+                connect.static('module')
+              ),
+              connect.static(appConfig.app),
             ];
           }
         }
@@ -101,7 +106,11 @@ module.exports = function (grunt) {
                 '/bower_components',
                 connect.static('./bower_components')
               ),
-              connect.static(appConfig.app)
+              connect().use(
+                '/module',
+                connect.static('module')
+              ),
+              connect.static(appConfig.app),
             ];
           }
         }

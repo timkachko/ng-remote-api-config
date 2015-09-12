@@ -2,11 +2,11 @@
 
 /**
  * @ngdoc overview
- * @name testAppApp
+ * @name testApp
  * @description
- * # testAppApp
+ * # testApp
  *
  * Main module of the application.
  */
 angular
-  .module('testAppApp', []);
+  .module('testApp', []);
