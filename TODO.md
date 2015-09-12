@@ -6,6 +6,7 @@
 - create and publish Bower package
 
 ### v0.0.2
+- provide startup configuration
 - provide decorator for $http 
 - provide backward compatibility without decorator for Angular 1.3.x
 - document config format

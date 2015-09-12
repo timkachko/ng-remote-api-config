@@ -359,7 +359,16 @@ module.exports = function (grunt) {
           cwd: '.tmp/images',
           dest: '<%= yeoman.dist %>/images',
           src: ['generated/*']
-        }]
+        }
+          ,
+          {
+          expand: true,
+          cwd: '<%= yeoman.module %>',
+          dest: '<%= yeoman.dist %>/module',
+          src: ['*.js']
+        }
+
+        ]
       },
       styles: {
         expand: true,
@@ -433,11 +442,11 @@ module.exports = function (grunt) {
     'ngAnnotate',
     'copy:dist',
     'cdnify',
-    'cssmin',
+    //'cssmin',
     'uglify',
-    'filerev',
-    'usemin',
-    'htmlmin'
+    //'filerev',
+    'usemin'
+    //'htmlmin'
   ]);
 
   grunt.registerTask('default', [

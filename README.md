@@ -10,6 +10,11 @@ Run `grunt` for building and `grunt serve` for preview.
 
 Running `grunt test` will run the unit tests with karma.
 
+## Dependencies
+```
+    "angular": "^1.3.0",
+    "lodash-angular-wrapper": "*"
+```
 
 ## To Do 
 

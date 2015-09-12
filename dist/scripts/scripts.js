@@ -1,0 +1,1 @@
+"use strict";angular.module("testApp",["ngRemoteApiConfig"]),angular.module("testApp").controller("MainCtrl",["$scope",function(a){}]);
