@@ -188,23 +188,23 @@ module.exports = function (grunt) {
     wiredep: {
       app: {
         src: ['<%= yeoman.app %>/index.html'],
-        ignorePath:  /\.\.\//
+        ignorePath: /\.\.\//
       },
       test: {
         devDependencies: true,
         src: '<%= karma.unit.configFile %>',
-        ignorePath:  /\.\.\//,
-        fileTypes:{
+        ignorePath: /\.\.\//,
+        fileTypes: {
           js: {
             block: /(([\s\t]*)\/{2}\s*?bower:\s*?(\S*))(\n|\r|.)*?(\/{2}\s*endbower)/gi,
-              detect: {
-                js: /'(.*\.js)'/gi
-              },
-              replace: {
-                js: '\'{{filePath}}\','
-              }
+            detect: {
+              js: /'(.*\.js)'/gi
+            },
+            replace: {
+              js: '\'{{filePath}}\','
             }
           }
+        }
       }
     },
 
@@ -359,15 +359,18 @@ module.exports = function (grunt) {
           cwd: '.tmp/images',
           dest: '<%= yeoman.dist %>/images',
           src: ['generated/*']
-        }
-          ,
-          {
+        }, {
           expand: true,
-          cwd: '<%= yeoman.module %>',
-          dest: '<%= yeoman.dist %>/module',
-          src: ['*.js']
-        }
-
+            cwd: '<%= yeoman.module %>',
+            dest: '<%= yeoman.dist %>/module',
+            src: ['*.js']
+          },
+          {
+            expand: true,
+            cwd: '.',
+            dest: '<%= yeoman.dist %>/module',
+            src: ['bower.json']
+          }
         ]
       },
       styles: {
@@ -401,7 +404,6 @@ module.exports = function (grunt) {
       }
     }
   });
-
 
   grunt.registerTask('serve', 'Compile then start a connect web server', function (target) {
     if (target === 'dist') {
