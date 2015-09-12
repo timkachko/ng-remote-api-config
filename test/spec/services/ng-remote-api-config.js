@@ -11,7 +11,7 @@ describe('Serivice: api config -- default behaviour', function () {
 
   // load the controller's module
 
-  beforeEach(module('ngRemoteApiCong'));
+  //beforeEach(module('ngRemoteApiConfig'));
   //beforeEach(module('ngTemplates'));
   beforeEach(module('testApp'));
   beforeEach(function () {
@@ -58,9 +58,9 @@ describe('Serivice: api config -- default behaviour', function () {
 describe('Serivice: api config -- plants ', function () {
   var apiConfigService, $httpBackend;
 
-  beforeEach(module('wpIdntModule'));
+  //beforeEach(module('ngRemoteApiCong'));
   //beforeEach(module('ngTemplates'));
-  beforeEach(module('partnerApp'));
+  beforeEach(module('testApp'));
   beforeEach(function () {
     module(function ($provide) {
       $provide.constant('ENV', {apiRoot: 'http://plants'});

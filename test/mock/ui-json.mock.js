@@ -3,7 +3,7 @@
  */
 
 angular
-  .module('partnerApp')
+  .module('testApp')
   .factory('uiJsonMock', function () {
     return {
 

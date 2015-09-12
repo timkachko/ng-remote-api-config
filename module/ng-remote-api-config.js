@@ -2,7 +2,7 @@
  * Created by dkachko on 9/1/15.
  */
 angular.module('ngRemoteApiConfig', ['lodashAngularWrapper']).
-    factory('apiConfigService', function (ENV, $http, $log, _, $q, $) {
+    factory('apiConfigService', function (ENV, $http, $log, _, $q) {
         'use strict';
 
         var apiConfig = {};
@@ -97,12 +97,12 @@ angular.module('ngRemoteApiConfig', ['lodashAngularWrapper']).
          * leave options.url if it is defined in options
          * otherwise define it from the apiConfig
          * @param options {[serviceName, resourcePath,][url]}
-         * @returns $p.Promise
+         * @returns Promise
          */
 
         apiConfig.getUrl = function (options) {
             if (options.url) {
-                return $.when(options);
+                return $q.when(options);
             } else {
                 return apiConfig.get().then(function (config) {
                     var serviceUrl = config.services[options.serviceName];
