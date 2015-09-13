@@ -26,6 +26,12 @@ describe('Serivice: api config -- plants ', function () {
     $httpBackend.whenGET('http://cultivated.com/ui-json.json').respond(uiJson.cultivatedPlants);
   }));
 
+  afterEach(
+    function () {
+      //$httpBackend.verifyNoOutstandingExpectation();
+      $httpBackend.verifyNoOutstandingRequest();
+    });
+
   it('apiconfig, .get should be defined, be a function and return promise', function () {
     expect(apiConfigService).toBeDefined();
     expect(apiConfigService.get).toBeDefined();

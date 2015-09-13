@@ -17,17 +17,20 @@ angular
         urls: {anotherSiteAboutPlants: "https://some-site.org"},
         options: {plantsPictureFormat: "##plantname##-picture-small.jpg"},
         apiHosts: {
+          // reference to the cultivated plants API
           cultivatedPlants: 'http://cultivated.com',
         },
 
         // todo: implement
-        // you should configurate the handler for this
+        // if you need to have custom clauses as following
+        // you should configurate the handlers,
+        // describing how agregate it (not implemented yet)
         anyCustomData: {
           theHalfOfUltimateAnswer: 21
         }
       },
 
-      //config for api about cultivated plants
+      //config for the cultivated plants API
       cultivatedPlants: {
         envName: 'qa',
         services: {
@@ -35,24 +38,28 @@ angular
         },
         options: {cultivatingMethodPicture: "##cutlivator##-avatar.jpg"},
         apiHosts: {
+          // references to the other sub-APIs
           veggies: 'http://veggies.com',
           fruits: 'http://fruits.com'
         }
       },
 
-      // config for fruitful API
+      // config for the fruiteesh API
       fruits: {envName: 'qa',
         services: {apples: '/not-oranges/apples', bananas: '/not-oranges/bananas'}
       },
 
-      // config for vegetables lovers
+      // config for the vegetables API
       veggies: {
         envName: 'qa',
         urls: {callUsToCultivateVeggies: "https://veggies-are-good.org"},
         services: { cucumbers: '/green/cucumbers', tomatoes: '/red/tomatoes'},
 
-        // you should configurate the handler for this
+        // if you need to have custom clauses as following
+        // you should configurate the handlers for it,
+        // describing how agregate it
         anyCustomData: {
+          // to be collected and added to another half in the root
           theHalfOfUltimateAnswer: 21
         }
       }
