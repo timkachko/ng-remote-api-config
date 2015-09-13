@@ -69,5 +69,9 @@ Running `grunt test` will run the unit tests with karma.
 
 [List](TODO.md)
 
+## License
+
+[MIT](https://opensource.org/licenses/MIT)(c) 2015, Dmitriy Kachko
+
 
 
