@@ -13,5 +13,5 @@ angular
   .config(function(apiConfigServiceProvider){
     //tell where the configs are stored
     apiConfigServiceProvider.options.apiConfigPath = '/ui-json.json';
-    apiConfigServiceProvider.options.apiRoot = 'http://plants';
+    apiConfigServiceProvider.options.apiRoot = 'http://plants.com';
   });

@@ -7,4 +7,6 @@
 - create documentation on configuration and basic use case
 - create the release tag
 
+- create configurable sections processor functions
+
 [back to readme](README.md)

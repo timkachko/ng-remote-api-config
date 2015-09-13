@@ -20,9 +20,10 @@ describe('Serivice: api config -- plants ', function () {
   beforeEach(inject(function (_$httpBackend_, _uiJsonMock_) {
     $httpBackend = _$httpBackend_;
     var uiJson = _uiJsonMock_;
-    $httpBackend.whenGET('http://plants/ui-json.json').respond(uiJson.plants);
-    $httpBackend.whenGET('http://fruits/ui-json.json').respond(uiJson.fruits);
-    $httpBackend.whenGET('http://veggies/ui-json.json').respond(uiJson.veggies);
+    $httpBackend.whenGET('http://plants.com/ui-json.json').respond(uiJson.plants);
+    $httpBackend.whenGET('http://fruits.com/ui-json.json').respond(uiJson.fruits);
+    $httpBackend.whenGET('http://veggies.com/ui-json.json').respond(uiJson.veggies);
+    $httpBackend.whenGET('http://cultivated.com/ui-json.json').respond(uiJson.cultivatedPlants);
   }));
 
   it('apiconfig, .get should be defined, be a function and return promise', function () {
@@ -49,13 +50,9 @@ describe('Serivice: api config -- plants ', function () {
   it('root case: calling fruits returns bluegrass and maple full urls', function (done) {
     apiConfigService.get().then(
       function (d) {
-        console.log(d);
         expect(d.envName).toEqual('qa');
-        expect(d.services.bluegrass).toEqual('http://plants/grass/bluegrass');
-        expect(d.services.maple).toEqual('http://plants/trees/maple');
-      })
-      .catch(function (e) {
-        console.error('error happened: ', e);
+        expect(d.services.bluegrass).toEqual('http://plants.com/grass/bluegrass');
+        expect(d.services.maple).toEqual('http://plants.com/trees/maple');
       })
       .finally(done);
     $httpBackend.flush();
@@ -64,12 +61,27 @@ describe('Serivice: api config -- plants ', function () {
   it('children case: calling fruits returns apples, bananas, cucumbers, tomatoes full urls', function (done) {
     apiConfigService.get().then(
       function (d) {
-        console.log(d);
         expect(d.envName).toEqual('qa');
-        expect(d.services.apples).toEqual('http://fruits/apples');
-        expect(d.services.bananas).toEqual('http://fruits/bananas');
-        expect(d.services.cucumbers).toEqual('http://veggies/cucumbers');
-        expect(d.services.tomatoes).toEqual('http://veggies/tomatoes');
+        expect(d.services.apples).toEqual('http://fruits.com/not-oranges/apples');
+        expect(d.services.bananas).toEqual('http://fruits.com/not-oranges/bananas');
+        expect(d.services.cucumbers).toEqual('http://veggies.com/green/cucumbers');
+        expect(d.services.tomatoes).toEqual('http://veggies.com/red/tomatoes');
+        expect(d.services.cacti).toEqual('http://cultivated.com/green-hedgehogs/strange-plant-to-enjoy');
+      })
+      .catch(function (e) {
+        console.error('error happened: ', e);
+      })
+      .finally(done);
+    $httpBackend.flush();
+  });
+
+  it('other clauses: options, urls', function (done) {
+    apiConfigService.get().then(
+      function (d) {
+        expect(d.options.plantsPictureFormat).toEqual('##plantname##-picture-small.jpg');
+        expect(d.options.cultivatingMethodPicture).toEqual('##cutlivator##-avatar.jpg');
+        expect(d.urls.callUsToCultivateVeggies).toEqual('https://veggies-are-good.org');
+        expect(d.urls.anotherSiteAboutPlants).toEqual( 'https://some-site.org');
       })
       .catch(function (e) {
         console.error('error happened: ', e);

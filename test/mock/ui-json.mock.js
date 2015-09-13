@@ -7,82 +7,53 @@ angular
   .factory('uiJsonMock', function () {
     return {
 
-      fruits: {
-        envName: 'qa',
-        services: {
-          apples: '/apples',
-          bananas: '/bananas'
-        }
-      },
-
-      veggies: {
-        envName: 'qa',
-        services: {
-          cucumbers: '/cucumbers',
-          tomatoes: '/tomatoes'
-        }
-      },
-
+      // root api config -- you should pass the server and optional path to the module during of configuration phase
       plants: {
         envName: 'qa',
         services: {
           bluegrass: '/grass/bluegrass',
           maple: '/trees/maple'
         },
-        urls:{ profile: "https://washingtonpost.com"},
-        options:{partnerLogoImgFormat: "##partnerid##-logo-small.jpg"},
+        urls: {anotherSiteAboutPlants: "https://some-site.org"},
+        options: {plantsPictureFormat: "##plantname##-picture-small.jpg"},
         apiHosts: {
-          veggies: 'http://veggies',
-          fruits: 'http://fruits'
+          cultivatedPlants: 'http://cultivated.com',
+        },
+
+        // todo: implement
+        // you should configurate the handler for this
+        anyCustomData: {
+          theHalfOfUltimateAnswer: 21
         }
       },
 
-
-
-      realQA: {
-        "envName": "qa",
-        "services": {
-          "person": "/person",
-          "subscriptions": "/subscriptions",
-          "voucher": "/subscriptions/voucher",
-          "associate": "/subscriptions/associate",
-          "amtrack": "/subscriptions/amtrack",
-          "settings": "/settings/service",
-          "print": "/printservices",
-          "offers": "/offers/service",
-          "uiEvents": "/uieventservice",
-          "drawbridge": "/drawbridgeservice"
+      //config for api about cultivated plants
+      cultivatedPlants: {
+        envName: 'qa',
+        services: {
+          cacti:'/green-hedgehogs/strange-plant-to-enjoy'
         },
-        "urls": {
-          "profile": "https://washingtonpost.com",
-          "main": "https://fishlab8.digitalink.com/main",
-          "newsletters": "https://fishlab8.digitalink.com/newsletters/#/newsletters",
-          "login": "https://fishlab8.digitalink.com/loginregistration/index.html#/register/group/default?action=login",
-          "loginOnlyUrl": "https://subscribe.digitalink.com/loginregistration/index.html#/loginOnly?destination=##destination##",
-          "partnerLogoImgServerUrl": "https://partnerresources-a.akamaihd.net/test/partresources/",
-          "publicUrls": {
-            "viewAllComments": "http://www.washingtonpost.com/mycomments",
-            "browsingHistory": "http://posthistory.washingtonpost.com/browsinghistory/",
-            "moreNewsletters": "https://subscribe.washingtonpost.com/newsletters/#/newsletters",
-            "helpDescPage": "http://www.washingtonpost.com/actmgmt/help/",
-            "termsOfSale": "http://www.washingtonpost.com/terms-of-sale-for-digital-products/2014/05/06/b7763844-cbf9-11e3-93eb-6c0037dde2ad_story.html",
-            "termsOfService": "http://www.washingtonpost.com/terms-of-service/2011/11/18/gIQAldiYiN_story.html",
-            "privacyPolicy": "http://www.washingtonpost.com/privacy-policy/2011/11/18/gIQASIiaiN_story.html",
-            "sendUsMessage": "http://help.washingtonpost.com/ics/support/ticketnewwizard.asp?style=classic&deptID=15080",
-            "zipCodeCheckUrl": "https://subscribe.washingtonpost.com/acquisition/acquisitionapp.html?#/offers/promo/digital01/oscode/RPXU/zip/",
-            "liveChatCheckButtonUrl": "https://s5.parature.com/ics/csrchat/ChatButtonHttpModule.aspx?buttonId=e26ad9ea-7979-4031-8195-dd843db92f72&clientId=15067&deptId=15080",
-            "livaChatUrl": "https://s5.parature.com/ics/support/chat/chatstart.asp?deptID=15080&deploymentId=e26ad9ea-7979-4031-8195-dd843db92f72"
-          }
-        },
-        "options": {
-          "partnerLogoImgFormat": "##partnerid##-logo-small.jpg",
-          "facebook": {"appId": "98319225937", "scope": "email"},
-          "amazon": {
-            "sellerId": "A1Y7L5Q3A0CSJY",
-            "clientId": "amzn1.application-oa2-client.e0f05d8a1cf343ff97a6114bb44bf23d",
-            "amazonWidgetScriptUrl": "https://static-na.payments-amazon.com/OffAmazonPayments/us/sandbox/js/Widgets.js?sellerId=",
-            "scope": "profile postal_code"
-          }
+        options: {cultivatingMethodPicture: "##cutlivator##-avatar.jpg"},
+        apiHosts: {
+          veggies: 'http://veggies.com',
+          fruits: 'http://fruits.com'
+        }
+      },
+
+      // config for fruitful API
+      fruits: {envName: 'qa',
+        services: {apples: '/not-oranges/apples', bananas: '/not-oranges/bananas'}
+      },
+
+      // config for vegetables lovers
+      veggies: {
+        envName: 'qa',
+        urls: {callUsToCultivateVeggies: "https://veggies-are-good.org"},
+        services: { cucumbers: '/green/cucumbers', tomatoes: '/red/tomatoes'},
+
+        // you should configurate the handler for this
+        anyCustomData: {
+          theHalfOfUltimateAnswer: 21
         }
       }
     }
