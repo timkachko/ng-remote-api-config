@@ -7,6 +7,7 @@
  * # MainCtrl
  * Controller of the testApp
  */
+
 angular.module('testApp')
   .controller('MainCtrl', function ($scope,
                                     apiConfigService,

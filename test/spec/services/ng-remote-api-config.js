@@ -4,7 +4,7 @@
 'use strict';
 
 describe('Serivice: api config -- plants ', function () {
-  var apiConfigService, $httpBackend;
+  var apiConfigService, $httpBackend, uiJson;
 
   //beforeEach(module('ngRemoteApiCong'));
   //beforeEach(module('ngTemplates'));
@@ -19,7 +19,7 @@ describe('Serivice: api config -- plants ', function () {
   // Initialize the controller and a mock scope
   beforeEach(inject(function (_$httpBackend_, _uiJsonMock_) {
     $httpBackend = _$httpBackend_;
-    var uiJson = _uiJsonMock_;
+    uiJson = _uiJsonMock_;
     $httpBackend.whenGET('http://plants.com/ui-json.json').respond(uiJson.plants);
     $httpBackend.whenGET('http://fruits.com/ui-json.json').respond(uiJson.fruits);
     $httpBackend.whenGET('http://veggies.com/ui-json.json').respond(uiJson.veggies);
@@ -37,6 +37,8 @@ describe('Serivice: api config -- plants ', function () {
     expect(apiConfigService.get).toBeDefined();
     expect(typeof apiConfigService.get).toEqual('function');
     expect(typeof apiConfigService.get().then).toEqual('function');
+    $httpBackend.flush();
+
   });
 
   it('the promise resolved with object with envName and services defined', function (done) {
@@ -45,9 +47,6 @@ describe('Serivice: api config -- plants ', function () {
         expect(d.envName).toBeDefined();
         expect(d.services).toBeDefined();
         expect(typeof d.services).toEqual('object');
-      })
-      .catch(function (e) {
-        console.error('error happened: ', e);
       })
       .finally(done);
     $httpBackend.flush();
@@ -74,24 +73,55 @@ describe('Serivice: api config -- plants ', function () {
         expect(d.services.tomatoes).toEqual('http://veggies.com/red/tomatoes');
         expect(d.services.cacti).toEqual('http://cultivated.com/green-hedgehogs/strange-plant-to-enjoy');
       })
-      .catch(function (e) {
-        console.error('error happened: ', e);
-      })
       .finally(done);
     $httpBackend.flush();
   });
 
-  it('other clauses: options, urls', function (done) {
-    apiConfigService.get().then(
+  it('getUrl should left options without change when options contain url', function (done) {
+    var options = {url: 'http://cat.foot/zaps/dog', method: 'POST', data: 'Tom'};
+    var options2 = angular.extend({}, options);
+    apiConfigService.get()
+      .then(
+      apiConfigService.getUrl.bind(apiConfigService, options))
+      .then(
       function (d) {
-        expect(d.options.plantsPictureFormat).toEqual('##plantname##-picture-small.jpg');
-        expect(d.options.cultivatingMethodPicture).toEqual('##cutlivator##-avatar.jpg');
-        expect(d.urls.callUsToCultivateVeggies).toEqual('https://veggies-are-good.org');
-        expect(d.urls.anotherSiteAboutPlants).toEqual( 'https://some-site.org');
+        expect(d).toEqual(options2);
       })
-      .catch(function (e) {
-        console.error('error happened: ', e);
+      .catch(function (e) {console.error(e);})
+      .finally(done);
+    $httpBackend.flush();
+  });
+
+  it('getUrl should insert url if service exists and serviceName defined', function (done) {
+    var options = {serviceName: 'cacti', method: 'GET', data: 'Hedgehog'};
+    var options2 = angular.extend({}, options);
+    apiConfigService.get()
+      .then(
+      apiConfigService.getUrl.bind(apiConfigService, options))
+      .then(
+      function (d) {
+        expect(d).not.toEqual(options2);
+        expect(d.serviceName).not.toBeDefined();
+        expect(d.url).toEqual('http://cultivated.com/green-hedgehogs/strange-plant-to-enjoy');
       })
+      .catch(function (e) {console.error(e);})
+      .finally(done);
+    $httpBackend.flush();
+  });
+
+  it('getUrl should add resource to the url if the resourcePath is exist', function (done) {
+    var options = {serviceName: 'cacti', method: 'GET', resourcePath:'/cut/the/thorns', data: 'Hedgehog'};
+    var options2 = angular.extend({}, options);
+    apiConfigService.get()
+      .then(
+      apiConfigService.getUrl.bind(apiConfigService, options))
+      .then(
+      function (d) {
+        expect(d).not.toEqual(options2);
+        expect(d.serviceName).not.toBeDefined();
+        expect(d.url).toEqual('http://cultivated.com/green-hedgehogs/strange-plant-to-enjoy/cut/the/thorns');
+      })
+      .catch(function (e) {console.error(e);})
       .finally(done);
     $httpBackend.flush();
   });

@@ -71,7 +71,11 @@ Running `grunt test` will run the unit tests with karma.
 
 ## License
 
-[MIT](https://opensource.org/licenses/MIT)(c) 2015, Dmitriy Kachko
+[MIT](https://opensource.org/licenses/MIT) (c) 2015, Dmitriy Kachko
+
+## Kudos 
+Thanks to those who created great js tools as
+_node, npm, bower, grunt, karma, jasmine, yoeman_ and _angular_ (LBNL)
 
 
 

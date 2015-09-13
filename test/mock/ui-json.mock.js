@@ -59,7 +59,7 @@ angular
         // you should configurate the handlers for it,
         // describing how agregate it
         anyCustomData: {
-          // to be collected and added to another half in the root
+          // to be collected and added to another half
           theHalfOfUltimateAnswer: 21
         }
       }
