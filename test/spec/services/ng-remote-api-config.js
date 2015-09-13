@@ -3,69 +3,12 @@
  */
 'use strict';
 
-describe('Serivice: api config -- default behaviour', function () {
-
-  var DEFAULT_API_ROOT = 'http://fishlab8.digitalink.com';
-
-  var apiConfigService, $httpBackend, apiRoot = DEFAULT_API_ROOT;
-
-  // load the controller's module
-
-  //beforeEach(module('ngRemoteApiConfig'));
-  //beforeEach(module('ngTemplates'));
-  beforeEach(module('testApp'));
-  beforeEach(function () {
-    module(function ($provide) {
-      $provide.constant('ENV', {apiRoot: apiRoot});
-    })
-  });
-  beforeEach(function () {
-    inject(function (_apiConfigService_) {
-      apiConfigService = _apiConfigService_;
-    });
-  });
-
-  // Initialize the controller and a mock scope
-  beforeEach(inject(function (_$httpBackend_, _uiJsonMock_) {
-    $httpBackend = _$httpBackend_;
-    var uiJson = _uiJsonMock_;
-    $httpBackend.whenGET(DEFAULT_API_ROOT + '/ui-json.json').respond(uiJson.realQA);
-  }));
-
-  it('apiconfig, .get should be defined, be a function and return promise', function () {
-    expect(apiConfigService).toBeDefined();
-    expect(apiConfigService.get).toBeDefined();
-    expect(typeof apiConfigService.get).toEqual('function');
-    expect(typeof apiConfigService.get().then).toEqual('function');
-  });
-
-  it('the promise resolved with object with envName and services defined', function (done) {
-    apiConfigService.get().then(
-      function (d) {
-        expect(d.envName).toBeDefined();
-        expect(d.services).toBeDefined();
-        expect(typeof d.services).toEqual('object');
-        expect(d.services.person).toEqual(DEFAULT_API_ROOT + '/person');
-      })
-      .catch(function (e) {
-        console.error('error happened: ', e);
-      })
-      .finally(done);
-    $httpBackend.flush();
-  });
-});
-
 describe('Serivice: api config -- plants ', function () {
   var apiConfigService, $httpBackend;
 
   //beforeEach(module('ngRemoteApiCong'));
   //beforeEach(module('ngTemplates'));
   beforeEach(module('testApp'));
-  beforeEach(function () {
-    module(function ($provide) {
-      $provide.constant('ENV', {apiRoot: 'http://plants'});
-    })
-  });
 
   beforeEach(function () {
     inject(function (_apiConfigService_) {
@@ -81,6 +24,27 @@ describe('Serivice: api config -- plants ', function () {
     $httpBackend.whenGET('http://fruits/ui-json.json').respond(uiJson.fruits);
     $httpBackend.whenGET('http://veggies/ui-json.json').respond(uiJson.veggies);
   }));
+
+  it('apiconfig, .get should be defined, be a function and return promise', function () {
+    expect(apiConfigService).toBeDefined();
+    expect(apiConfigService.get).toBeDefined();
+    expect(typeof apiConfigService.get).toEqual('function');
+    expect(typeof apiConfigService.get().then).toEqual('function');
+  });
+
+  it('the promise resolved with object with envName and services defined', function (done) {
+    apiConfigService.get().then(
+      function (d) {
+        expect(d.envName).toBeDefined();
+        expect(d.services).toBeDefined();
+        expect(typeof d.services).toEqual('object');
+      })
+      .catch(function (e) {
+        console.error('error happened: ', e);
+      })
+      .finally(done);
+    $httpBackend.flush();
+  });
 
   it('root case: calling fruits returns bluegrass and maple full urls', function (done) {
     apiConfigService.get().then(
