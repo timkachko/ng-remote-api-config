@@ -43,6 +43,25 @@ the data is collected:
  });
 ```
 
+### Use httpConfigured
+
+The service `httpConfigured(options)` is a wrapper around `$http(options)`. Just use instead `options.url`
+ the properties `options.serviceName` and `options.resourcePath`:
+ ```
+var options = {
+  serviceName: 'cacti',
+  method: 'GET',
+  resourcePath: '/cut/the/thorns',
+  data: 'Hedgehog' };
+ 
+httpConfigured(options)
+  .then(
+  function (d) {
+   console.log(d);
+   expect(d.data).toEqual('best cactus - tested cactus'); })
+ ```
+(you can still use urls though)
+
 ### Server-side configuration
 
 Each configuration object should have the same path relative to the root of the api. E.g. if the API hosted with URI 

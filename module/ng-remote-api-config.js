@@ -8,7 +8,6 @@
 
   var ngRemoteApiConfigModule = angular.module('ngRemoteApiConfig', ['lodashAngularWrapper']);
 
-
   ngRemoteApiConfigModule.provider('apiConfigService', function () {
 
       var self = this;
@@ -110,28 +109,30 @@
          * return promise resolved with options
          * leave options.url if it is defined in options
          * otherwise define it from the apiConfig
-         * @param options {[serviceName, resourcePath,][url]}
+         * @param options Object
          * @returns Promise
          */
           //
-          apiConfig.getUrl = function (options) {
-            if (angular.isString(options.url)) {
-              return $q.when(options);
-            } else if (!options.serviceName){
-              throw ['*** API CONFIG: The service name is not defined. '];
-            }{
-              return apiConfig.get().then(function (config) {
-                var serviceUrl = config.services[options.serviceName];
-                if (!serviceUrl) {
-                  throw ['*** API CONFIG: The service not found. The serviceName:' + options.serviceName + ' .'];
-                }
-                options.url = config.services[options.serviceName] + (options.resourcePath || '');
-                delete options.serviceName;
-                delete options.resourcePath;
-                return options;
-              });
-            }
-          };
+        apiConfig.getUrl = function (options) {
+          if (angular.isString(options.url)) {
+            return $q.when(options);
+          } else if (!options.serviceName) {
+            throw ['*** API CONFIG: The service name is not defined. '];
+          }
+          {
+            return apiConfig.get().then(function (config) {
+              var serviceUrl = config.services[options.serviceName],
+                optionsCopy = angular.extend({}, options)
+              if (!serviceUrl) {
+                throw ['*** API CONFIG: The service not found. The serviceName:' + options.serviceName + ' .'];
+              }
+              optionsCopy.url = config.services[options.serviceName] + (options.resourcePath || '');
+              delete optionsCopy.serviceName;
+              delete optionsCopy.resourcePath;
+              return optionsCopy;
+            });
+          }
+        };
 
         apiConfig.get().then(function (config) {$log.debug('*** API CONFIG retrieved:', config); });
 
@@ -143,34 +144,22 @@
 
   /**
    * wrapper around the $http
-   * provides the same basic functionality as $http
+   * provides the same basic functionality as $http()
    * but if url is not defined, it is trying to retrieve it from the config
    */
-  ngRemoteApiConfigModule.factory('httpConfigured', function () {
+  ngRemoteApiConfigModule.factory('httpConfigured', function ($http, apiConfigService) {
     var self = function (options) {
       if (angular.isString(options.url)) {
         return $http(options);
+      } else {
+        return apiConfigService.getUrl(options)
+          .then(function (opts) {
+            return $http(opts);
+          })
       }
-    }
+    };
+    return self;
   });
-
-  /**
-   * separated module to avoid circular dependencies
-   * @type {any|module|angular.IModule|*}
-   */
-  //var ngRemoteApiConfigModuleInterceptor = angular.module('ngRemoteApiConfigInterceptor', ['ngRemoteApiConfig'] );
-  //
-  //ngRemoteApiConfigModuleInterceptor.config(function ($httpProvider) {
-  //  $httpProvider.interceptors.push('httpConfiguredInterceptor');
-  //});
-  //
-  //ngRemoteApiConfigModuleInterceptor.factory('httpConfiguredInterceptor', function (apiConfigService) {
-  //  return {
-  //    'request': function (options) {
-  //      return apiConfigService.getUrl(options);
-  //    }
-  //  }
-  //});
 
   if (angular.isFunction(angular.decorator)) {
     // todo create decorator

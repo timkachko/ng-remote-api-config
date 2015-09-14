@@ -4,10 +4,8 @@
 'use strict';
 
 describe('Serivice: api config -- plants ', function () {
-  var apiConfigService, $httpBackend, uiJson;
+  var apiConfigService, $httpBackend, uiJson, httpConfigured;
 
-  //beforeEach(module('ngRemoteApiCong'));
-  //beforeEach(module('ngTemplates'));
   beforeEach(module('testApp'));
 
   beforeEach(function () {
@@ -17,13 +15,16 @@ describe('Serivice: api config -- plants ', function () {
   });
 
   // Initialize the controller and a mock scope
-  beforeEach(inject(function (_$httpBackend_, _uiJsonMock_) {
+  beforeEach(inject(function (_$httpBackend_, _uiJsonMock_, _httpConfigured_) {
     $httpBackend = _$httpBackend_;
+    httpConfigured = _httpConfigured_;
     uiJson = _uiJsonMock_;
     $httpBackend.whenGET('http://plants.com/ui-json.json').respond(uiJson.plants);
     $httpBackend.whenGET('http://fruits.com/ui-json.json').respond(uiJson.fruits);
     $httpBackend.whenGET('http://veggies.com/ui-json.json').respond(uiJson.veggies);
     $httpBackend.whenGET('http://cultivated.com/ui-json.json').respond(uiJson.cultivatedPlants);
+    $httpBackend.whenGET('http://cultivated.com/green-hedgehogs/strange-plant-to-enjoy/cut/the/thorns')
+      .respond('best cactus - tested cactus');
   }));
 
   afterEach(
@@ -110,7 +111,7 @@ describe('Serivice: api config -- plants ', function () {
   });
 
   it('getUrl should add resource to the url if the resourcePath is exist', function (done) {
-    var options = {serviceName: 'cacti', method: 'GET', resourcePath:'/cut/the/thorns', data: 'Hedgehog'};
+    var options = {serviceName: 'cacti', method: 'GET', resourcePath: '/cut/the/thorns', data: 'Hedgehog'};
     var options2 = angular.extend({}, options);
     apiConfigService.get()
       .then(
@@ -119,10 +120,50 @@ describe('Serivice: api config -- plants ', function () {
       function (d) {
         expect(d).not.toEqual(options2);
         expect(d.serviceName).not.toBeDefined();
+        expect(d.resourcePath).not.toBeDefined();
         expect(d.url).toEqual('http://cultivated.com/green-hedgehogs/strange-plant-to-enjoy/cut/the/thorns');
       })
       .catch(function (e) {console.error(e);})
       .finally(done);
+    $httpBackend.flush();
+  });
+
+  it('httpConfigured should retireve the url for the request accordingly', function (done) {
+    var options = {
+      serviceName: 'cacti',
+      method: 'GET',
+      resourcePath: '/cut/the/thorns',
+      data: 'Hedgehog'
+    };
+    apiConfigService.get().then(function () {
+      httpConfigured(options)
+        .then(
+        function (d) {
+          console.log(d);
+          expect(d.data).toEqual('best cactus - tested cactus');
+        })
+        .catch(function (e) {console.error(e);})
+        .finally(done);
+    });
+    $httpBackend.flush();
+  });
+
+  it('httpConfigured should pass the url if it is exists', function (done) {
+    var options = {
+      method: 'GET',
+      data: 'Hedgehog',
+      url:'http://cultivated.com/green-hedgehogs/strange-plant-to-enjoy/cut/the/thorns'
+    };
+    apiConfigService.get().then(function () {
+      httpConfigured(options)
+        .then(
+        function (d) {
+          console.log(d);
+          expect(d.data).toEqual('best cactus - tested cactus');
+        })
+        .catch(function (e) {console.error(e);})
+        .finally(done);
+    });
     $httpBackend.flush();
   });
 
