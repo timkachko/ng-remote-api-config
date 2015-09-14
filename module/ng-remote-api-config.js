@@ -148,6 +148,7 @@
    * but if url is not defined, it is trying to retrieve it from the config
    */
   ngRemoteApiConfigModule.factory('httpConfigured', function ($http, apiConfigService) {
+
     var self = function (options) {
       if (angular.isString(options.url)) {
         return $http(options);
@@ -158,12 +159,9 @@
           })
       }
     };
+
     return self;
   });
-
-  if (angular.isFunction(angular.decorator)) {
-    // todo create decorator
-  }
 
 }(window.angular));
 

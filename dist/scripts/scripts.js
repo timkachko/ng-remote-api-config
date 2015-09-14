@@ -1,1 +1,1 @@
-"use strict";angular.module("testApp",["ngRemoteApiConfig"]),angular.module("testApp").controller("MainCtrl",["$scope",function(a){}]);
+"use strict";angular.module("testApp",["ngRemoteApiConfig"]).config(["apiConfigServiceProvider",function(a){a.options.apiConfigPath="/ui-json.json",a.options.apiRoot="http://plants.com"}]),angular.module("testApp").controller("MainCtrl",["$scope","apiConfigService","$log",function(a,b,c){b.get().then(function(a){return c.debug("all set!"),a})}]);
