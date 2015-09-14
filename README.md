@@ -65,13 +65,13 @@ The service `httpConfigured(options)` is a wrapper around `$http(options)`. Simp
 
 ### Server-side configuration
 
-Each configuration object should have the same path relative to the root of the api. E.g. if the API hosted with URI 
+Conventionally, each configuration object should have the same path relative to the root of the api. E.g. if the API hosted with URI 
 the `http://kitty.cat/api`, the best way is to have the server to respond with the configuration object on the GET request
 to the root of the api (apiConfigPath is set '/' by default). If we have the config on the different path, e.g. 
 `http://kitty.cat/api/config/api.json`, we should set apiConfigPath = '/config/api.json' and it will be the same for the
- other servers. For example, part of API is located on `http://cats-food/prices`, then configuration object should be 
- available on `http://cats-food/prices/config/api.json`, so the client apps know that the config is located on the 
- same path for each server. Right now dynamic change of the path is not implemented as having a low priority.
+other servers. Lets say, a part of the API is located on `http://cats-food/prices`. Then the configuration object should be 
+available on `http://cats-food/prices/config/api.json`, so the client apps are able to retrieve it with the 
+same path for each server. Currently the dynamic change of the config path is not implemented as having a low priority.
  
 Please have a look into the [ui-json.mock.js](test/mock/ui-json.mock.js) for the sample configuration objects.
 
