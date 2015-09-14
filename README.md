@@ -4,17 +4,17 @@ Simple AngularJS module created to keep environment configuration managed remote
 
 ## Motivation
 
-In the case when an API which is delivered from several servers/endpoints and a set of client applications rely on the API,
-you have a problem of multiple coupling between the client and server part, when hard to maintain/move/restructure the API.
-The problem also appears during the production cycle, when the client app is pushed from developing to testing environments,
+In the case of API is being delivered from several servers with different endpoints to a set of client applications,
+the problem of multiple coupling arises, when hard to maintain/move/restructure the API without changing clients configuration.
+The similar issues appears during the production cycle, when the client app is pushed from developing to testing environments,
 and further to the production.
 
-This module provides API configuration object that is collected from several servers during application startup for use 
-in $http calls.
+This module provides API configuration object that is collected and agregated from several servers during application 
+startup for use in $http calls.
 
 ## Installation
 
-to add it in your project 
+To add it in your project:
 
 - install the package: `bower install ng-remote-app-config --save`
 
@@ -22,20 +22,18 @@ to add it in your project
 
 - config the provider with api root and optional path:
 
- ```
- .config(function(apiConfigServiceProvider){
-   //tell where the configs are stored
-   apiConfigServiceProvider.options.apiConfigPath = '/ui-json.json';
-   apiConfigServiceProvider.options.apiRoot = 'http://plants.com';
- });
- ```
+```
+.config(function(apiConfigServiceProvider){
+  //tell where the configs are stored
+  apiConfigServiceProvider.options.apiConfigPath = '/ui-json.json';
+  apiConfigServiceProvider.options.apiRoot = 'http://plants.com';
+});
+```
  
 - inject the service in any of your controllers/services to have configuration promise, which will be resolved when all 
 the data is collected: 
 ```
-.controller('MainCtrl', function ($scope,
-                                   apiConfigService,
-                                   $log) {
+.controller('MainCtrl', function ($scope, apiConfigService, $log) {
    apiConfigService.get().then(function(configData){
      $log.debug('all set!');
      return configData; // to do something with it e.g. make a call with $http;
@@ -45,21 +43,24 @@ the data is collected:
 
 ### Use httpConfigured
 
-The service `httpConfigured(options)` is a wrapper around `$http(options)`. Just use instead `options.url`
+The service `httpConfigured(options)` is a wrapper around `$http(options)`. Simply use instead `options.url`
  the properties `options.serviceName` and `options.resourcePath`:
- ```
-var options = {
-  serviceName: 'cacti',
-  method: 'GET',
-  resourcePath: '/cut/the/thorns',
-  data: 'Hedgehog' };
- 
-httpConfigured(options)
-  .then(
-  function (d) {
-   console.log(d);
-   expect(d.data).toEqual('best cactus - tested cactus'); })
- ```
+```
+.controller('MainCtrl', function (httpConfigured, $log) {
+  var options = {
+    serviceName: 'cacti',
+    method: 'GET',
+    resourcePath: '/cut/the/thorns',
+    data: 'Hedgehog' 
+  };
+   
+  httpConfigured(options)
+    .then(function (d) {
+      $log.debug(d);
+      expect(d.data).toEqual('best cactus - tested cactus'); 
+    });
+});
+```
 (you can still use urls though)
 
 ### Server-side configuration
@@ -93,8 +94,9 @@ Running `grunt test` will run the unit tests with karma.
 [MIT](https://opensource.org/licenses/MIT) (c) 2015, Dmitriy Kachko
 
 ## Kudos 
-Thanks to those who created great js tools as
-_node, npm, bower, grunt, karma, jasmine, yoeman_ and _angular_ (LBNL)
+Thanks to those who created such a great js tools/libs as
+
+_node, npm, bower, grunt, karma, jasmine, yoeman, lo-dash_ and _angular_ (LBNL)
 
 
 
