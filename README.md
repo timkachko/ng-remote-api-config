@@ -98,5 +98,9 @@ Thanks to those who created such a great js tools/libs as
 
 _node, npm, bower, grunt, karma, jasmine, yoeman, lo-dash_ and _angular_ (LBNL)
 
+### Exibit A:
+
+![diagram](diagram.png)
+
 
 
