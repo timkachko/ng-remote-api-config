@@ -13,7 +13,7 @@ angular.module('testApp')
                                     apiConfigService,
                                     $log) {
 
-    apiConfigService.get().then(function(configData){
+    apiConfigService.get().then(function (configData) {
       $log.debug('all set!');
       return configData; // to do something with it e.g. make a call with $http;
     });

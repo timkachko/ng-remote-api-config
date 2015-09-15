@@ -10,7 +10,7 @@
  */
 angular
   .module('testApp', ['ngRemoteApiConfig'])
-  .config(function(apiConfigServiceProvider){
+  .config(function (apiConfigServiceProvider) {
     //tell where the configs are stored
     apiConfigServiceProvider.options.apiConfigPath = '/ui-json.json';
     apiConfigServiceProvider.options.apiRoot = 'http://plants.com';

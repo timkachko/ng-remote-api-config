@@ -148,7 +148,7 @@ describe('Serivice: api config -- plants ', function () {
     $httpBackend.flush();
   });
 
-  it('httpConfigured should pass the url if it does exists', function (done) {
+  it('httpConfigured should pass the url if it does exist', function (done) {
     var options = {
       method: 'GET',
       data: 'Hedgehog',
