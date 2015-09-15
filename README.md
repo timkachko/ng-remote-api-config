@@ -4,12 +4,12 @@ Simple AngularJS module created to keep environment configuration managed remote
 
 ## Motivation
 
-In the case of API is being delivered from several servers with different endpoints to a set of client applications,
+In the case of API is being delivered from multiple servers with different endpoints to a set of client applications,
 the problem of multiple coupling arises, when hard to maintain/move/restructure the API without changing clients configuration.
 The similar issues appears during the production cycle, when the client app is pushed from developing to testing environments,
 and further to the production.
 
-This module provides API configuration object that is collected and agregated from several servers during application 
+This module provides API configuration object that is collected and agregated from multiple servers during application 
 startup for use in $http calls.
 
 ## Installation
@@ -73,7 +73,7 @@ other servers. Lets say, a part of the API is located on `http://cats-food/price
 available on `http://cats-food/prices/config/api.json`, so the client apps are able to retrieve it with the 
 same path for each server. Currently the dynamic change of the config path is not implemented as having a low priority.
  
-Please have a look into the [ui-json.mock.js](test/mock/ui-json.mock.js) for the sample configuration objects.
+Please have a look into the [ui-json.mock.js](test/mock/ui-json.mock.js) and Exhibit A for the sample configuration objects.
 
 ## Testing
 
@@ -98,7 +98,7 @@ Thanks to those who created such a great js tools/libs as
 
 _node, npm, bower, grunt, karma, jasmine, yoeman, lo-dash_ and _angular_ (LBNL)
 
-### Exibit A:
+### Exhibit A:
 
 ![diagram](diagram.png)
 
