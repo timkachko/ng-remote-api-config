@@ -33,7 +33,7 @@ describe('Serivice: api config -- plants ', function () {
       $httpBackend.verifyNoOutstandingRequest();
     });
 
-  it('apiconfig, .get should be defined, be a function and return promise', function () {
+  it('apiconfig, .get should be defined, be a function and return a promise', function () {
     expect(apiConfigService).toBeDefined();
     expect(apiConfigService.get).toBeDefined();
     expect(typeof apiConfigService.get).toEqual('function');
@@ -42,7 +42,7 @@ describe('Serivice: api config -- plants ', function () {
 
   });
 
-  it('the promise resolved with object with envName and services defined', function (done) {
+  it('the promise should be resolved with object with envName and services defined', function (done) {
     apiConfigService.get().then(
       function (d) {
         expect(d.envName).toBeDefined();
@@ -53,7 +53,7 @@ describe('Serivice: api config -- plants ', function () {
     $httpBackend.flush();
   });
 
-  it('root case: calling fruits returns bluegrass and maple full urls', function (done) {
+  it('root case: calling fruits config returns bluegrass and maple full urls', function (done) {
     apiConfigService.get().then(
       function (d) {
         expect(d.envName).toEqual('qa');
@@ -64,7 +64,7 @@ describe('Serivice: api config -- plants ', function () {
     $httpBackend.flush();
   });
 
-  it('children case: calling fruits returns apples, bananas, cucumbers, tomatoes full urls', function (done) {
+  it('children case: calling fruits config  returns apples, bananas, cucumbers, tomatoes full urls', function (done) {
     apiConfigService.get().then(
       function (d) {
         expect(d.envName).toEqual('qa');
@@ -78,7 +78,7 @@ describe('Serivice: api config -- plants ', function () {
     $httpBackend.flush();
   });
 
-  it('getUrl should left options without change when options contain url', function (done) {
+  it('getUrl should left options without change when the options object contains url', function (done) {
     var options = {url: 'http://cat.foot/zaps/dog', method: 'POST', data: 'Tom'};
     var options2 = angular.extend({}, options);
     apiConfigService.get()
@@ -93,7 +93,7 @@ describe('Serivice: api config -- plants ', function () {
     $httpBackend.flush();
   });
 
-  it('getUrl should insert url if service exists and serviceName defined', function (done) {
+  it('getUrl should insert url if service exists and serviceName is defined', function (done) {
     var options = {serviceName: 'cacti', method: 'GET', data: 'Hedgehog'};
     var options2 = angular.extend({}, options);
     apiConfigService.get()
@@ -110,7 +110,7 @@ describe('Serivice: api config -- plants ', function () {
     $httpBackend.flush();
   });
 
-  it('getUrl should add resource to the url if the resourcePath is exist', function (done) {
+  it('getUrl should add resource to the url if the resourcePath exists', function (done) {
     var options = {serviceName: 'cacti', method: 'GET', resourcePath: '/cut/the/thorns', data: 'Hedgehog'};
     var options2 = angular.extend({}, options);
     apiConfigService.get()
@@ -128,7 +128,7 @@ describe('Serivice: api config -- plants ', function () {
     $httpBackend.flush();
   });
 
-  it('httpConfigured should retireve the url for the request accordingly', function (done) {
+  it('httpConfigured should retrieve the url for the request accordingly', function (done) {
     var options = {
       serviceName: 'cacti',
       method: 'GET',
@@ -148,7 +148,7 @@ describe('Serivice: api config -- plants ', function () {
     $httpBackend.flush();
   });
 
-  it('httpConfigured should pass the url if it is exists', function (done) {
+  it('httpConfigured should pass the url if it does exists', function (done) {
     var options = {
       method: 'GET',
       data: 'Hedgehog',
