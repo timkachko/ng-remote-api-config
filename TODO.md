@@ -8,9 +8,12 @@ v0.1.0
 - ~~create the release tag v0.1.0~~
 - ~~add fancy graph info~~
 
+v0.1.1
+- ~~httpConfigured.service().resource('').post(data) style~~
+- ~~shortcuts for services~~
+
 v0.1.x
-- httpConfigured.serviceName().resourcePath('').post(data) style
-- httpConfigured.serviceName().resourcePathPreconfigured().post(data) style
+- build resource by adding to the path
 - pre-configure resources for httpConfigured
 
 - create configurable processor functions

@@ -68,7 +68,7 @@ The service `httpConfigured(options)` is a wrapper around `$http(options)`. Simp
 You can use builder for getting the service object or work with single resource, so the example from previous section 
 will look as:
 ```
-.controller('MainCtrl', function (httpConfigured, $log) {
+.controller('MainCtrl', function (httpConfigured, httpC, $log) {
 
   var cactiService = httpConfigured.service('cacti');
   // do something else with the service like create resource...
