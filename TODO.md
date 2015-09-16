@@ -13,9 +13,8 @@ v0.1.1
 - ~~shortcuts for services~~
 
 v0.1.x
-- build resource by adding to the path
+- build resource from parent resource by adding to the path
 - pre-configure resources for httpConfigured
-
 - create configurable processor functions
 
 

@@ -65,8 +65,8 @@ The service `httpConfigured(options)` is a wrapper around `$http(options)`. Simp
 
 ### The httpConfigured builder and shortcuts:
 
-You can use builder for getting the service object or work with single resource, so the example from previous section 
-will look as:
+You can use the builder for getting a service object or work with a single resource, so the example from the previous section 
+may look as:
 ```
 .controller('MainCtrl', function (httpConfigured, httpC, $log) {
 
