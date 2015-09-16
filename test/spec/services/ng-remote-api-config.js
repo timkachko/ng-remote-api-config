@@ -4,7 +4,7 @@
 'use strict';
 
 describe('Serivice: api config -- plants ', function () {
-  var apiConfigService, $httpBackend, uiJson, httpConfigured;
+  var apiConfigService, $httpBackend, uiJson, httpConfigured, httpC;
 
   beforeEach(module('testApp'));
 
@@ -15,14 +15,29 @@ describe('Serivice: api config -- plants ', function () {
   });
 
   // Initialize the controller and a mock scope
-  beforeEach(inject(function (_$httpBackend_, _uiJsonMock_, _httpConfigured_) {
+  beforeEach(inject(function (_$httpBackend_, _uiJsonMock_, _httpConfigured_, _httpC_) {
     $httpBackend = _$httpBackend_;
     httpConfigured = _httpConfigured_;
     uiJson = _uiJsonMock_;
+    httpC = _httpC_;
     $httpBackend.whenGET('http://plants.com/ui-json.json').respond(uiJson.plants);
     $httpBackend.whenGET('http://fruits.com/ui-json.json').respond(uiJson.fruits);
     $httpBackend.whenGET('http://veggies.com/ui-json.json').respond(uiJson.veggies);
     $httpBackend.whenGET('http://cultivated.com/ui-json.json').respond(uiJson.cultivatedPlants);
+    $httpBackend.whenGET('http://veggies.com/green/cucumbers').respond({collection: 'cucumbers'});
+
+    $httpBackend.when('GET', 'http://veggies.com/green/cucumbers/salted', function (d) {
+      return !!d;
+    }).respond({collection: 'pickle'});
+
+    $httpBackend.when('POST', 'http://veggies.com/green/cucumbers/salted', function (d) {
+      return JSON.parse(d).pepper === 'red';
+    }).respond({collection: 'hot'});
+
+    $httpBackend.when('DELETE', 'http://veggies.com/green/cucumbers/salted', function (d) {
+      return JSON.parse(d).pepper === 'green';
+    }).respond({collection: 'mild'});
+
     $httpBackend.whenGET('http://cultivated.com/green-hedgehogs/strange-plant-to-enjoy/cut/the/thorns')
       .respond('best cactus - tested cactus');
   }));
@@ -139,7 +154,6 @@ describe('Serivice: api config -- plants ', function () {
       httpConfigured(options)
         .then(
         function (d) {
-          console.log(d);
           expect(d.data).toEqual('best cactus - tested cactus');
         })
         .catch(function (e) {console.error(e);})
@@ -151,15 +165,94 @@ describe('Serivice: api config -- plants ', function () {
   it('httpConfigured should pass the url if it does exist', function (done) {
     var options = {
       method: 'GET',
-      data: 'Hedgehog',
-      url:'http://cultivated.com/green-hedgehogs/strange-plant-to-enjoy/cut/the/thorns'
+      data: {name: 'Hedgehog'},
+      url: 'http://cultivated.com/green-hedgehogs/strange-plant-to-enjoy/cut/the/thorns'
     };
     apiConfigService.get().then(function () {
       httpConfigured(options)
         .then(
         function (d) {
-          console.log(d);
           expect(d.data).toEqual('best cactus - tested cactus');
+        })
+        .catch(function (e) {console.error(e);})
+        .finally(done);
+    });
+    $httpBackend.flush();
+  });
+
+  it('httpConfigured should give access to the service with dot operator', function (done) {
+    apiConfigService.get().then(function () {
+      httpConfigured.service('cucumbers').get()
+        .then(
+        function (d) {
+          expect(d.data.collection).toEqual('cucumbers');
+        })
+        .catch(function (e) {console.error(e);})
+        .finally(done);
+    });
+    $httpBackend.flush();
+  });
+
+  it('httpConfigured should give access to the resorce with dot operator', function (done) {
+    apiConfigService.get().then(function () {
+      httpConfigured.service('cucumbers').resource('/salted').get()
+        .then(
+        function (d) {
+          console.log(d);
+          expect(d.data.collection).toEqual('pickle');
+        })
+        .catch(function (e) {console.error(e);})
+        .finally(done);
+    });
+    $httpBackend.flush();
+  });
+
+  it('httpConfigured should give access to the data with dot operator', function (done) {
+    apiConfigService.get().then(function () {
+      httpConfigured.service('cucumbers').resource('/salted').data({pepper: 'red'}).post()
+        .then(
+        function (d) {
+          expect(d.data.collection).toEqual('hot');
+        })
+        .catch(function (e) {console.error(e);})
+        .finally(done);
+    });
+    $httpBackend.flush();
+  });
+
+  it('httpConfigured.service should allow all three arguments', function (done) {
+    apiConfigService.get().then(function () {
+      httpConfigured.service('cucumbers', '/salted', {pepper: 'green'}).delete()
+        .then(
+        function (d) {
+          expect(d.data.collection).toEqual('mild');
+        })
+        .catch(function (e) {console.error(e);})
+        .finally(done);
+    });
+    $httpBackend.flush();
+  });
+
+
+  it('httpConfigured.s contains shortcut to service', function (done) {
+    apiConfigService.get().then(function () {
+      httpConfigured.s.cucumbers('/salted', {pepper: 'green'}).delete()
+        .then(
+        function (d) {
+          expect(d.data.collection).toEqual('mild');
+        })
+        .catch(function (e) {console.error(e);})
+        .finally(done);
+    });
+    $httpBackend.flush();
+  });
+
+  it('httpC defined as shortname', function (done) {
+    apiConfigService.get().then(function () {
+      httpC.s.cucumbers('/salted', {pepper: 'green'}).delete()
+        .then(
+        function (d) {
+          expect(d.data.collection).toEqual('mild');
         })
         .catch(function (e) {console.error(e);})
         .finally(done);

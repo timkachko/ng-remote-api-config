@@ -148,20 +148,99 @@
    * but if url is not defined, it is trying to retrieve it from the config
    */
   ngRemoteApiConfigModule.factory('httpConfigured', function ($http, apiConfigService) {
+    var GET = 'GET',
+      POST = 'POST',
+      DELETE = 'DELETE',
+      PUT = 'PUT';
 
-    var self = function (options) {
-      if (angular.isString(options.url)) {
-        return $http(options);
-      } else {
-        return apiConfigService.getUrl(options)
-          .then(function (opts) {
-            return $http(opts);
-          })
-      }
-    };
+    var build = function (initialOptions) {
+      // you can call httpConfigured(fullOptions) it returns promise
+      var core = function (fullOptions) {
+        if (angular.isString(fullOptions.url)) {
+          return $http(fullOptions);
+        } else {
+          return apiConfigService.getUrl(fullOptions)
+            .then(function (config) {
+              return $http(config);
+            })
+        }
+      };
+      // or you can build options and then call method
+      core.options = initialOptions;
+      /**
+       *
+       * @param {string} serviceName
+       * @optional {string} [resourcePath]
+       * @param {object} [data]
+       * @returns {Function}
+       */
+      core.service = function (serviceName, resourcePath, data) {
+        core.data(data).resource(resourcePath);
+        angular.extend(core.options, {serviceName: serviceName});
+        return core;
+      };
 
-    return self;
-  });
+      core.resource = function (resourcePath, data) {
+        core.data(data);
+        if (angular.isString(resourcePath) && resourcePath) {
+          angular.extend(core.options, {resourcePath: resourcePath});
+        }
+        return core;
+      };
+
+      core.get = function (data) {
+        core.data(data);
+        angular.extend(core.options, {method: GET});
+        return core(core.options);
+      };
+
+      core.post = function (data) {
+        core.data(data);
+        angular.extend(core.options, {method: POST});
+        return core(core.options);
+      };
+
+      core.put = function (data) {
+        core.data(data);
+        angular.extend(core.options, {method: PUT});
+        return core(core.options);
+      };
+
+      core.delete = function (data) {
+        core.data(data);
+        angular.extend(core.options, {method: DELETE});
+        return core(core.options);
+      };
+
+      core.data = function (data) {
+        if (angular.isObject(data) && data) {
+          angular.extend(core.options, {data: data});
+        }
+        return core;
+      };
+
+      // define shourtcuts to the services
+
+      function makeShortcut(serviceName) {
+        return function (resourcePath, data) {
+          return core.service(serviceName, resourcePath, data);
+        }
+      };
+
+      core.s = {};
+
+      apiConfigService.get().then(function (config) {
+        angular.forEach(config.services, function (serviceUrl, serviceName) {
+          core.s[serviceName] = makeShortcut(serviceName);
+        });
+      });
+      return core;
+    }
+
+    return build({});
+  })
+    // define shortname for httpConfigured
+    .factory('httpC', function (httpConfigured) {return httpConfigured;});
 
 }(window.angular));
 

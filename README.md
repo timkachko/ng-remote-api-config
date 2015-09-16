@@ -63,6 +63,30 @@ The service `httpConfigured(options)` is a wrapper around `$http(options)`. Simp
 ```
 (you can still use urls though)
 
+### The httpConfigured builder and shortcuts:
+
+You can use builder for getting the service object or work with single resource, so the example from previous section 
+will look as:
+```
+.controller('MainCtrl', function (httpConfigured, $log) {
+
+  var cactiService = httpConfigured.service('cacti');
+  // do something else with the service like create resource...
+  var  = cactiService.resource('/cut/the/thorns')
+  // work with resorce, e.g get it: 
+  thornsResource.get(data).then(function (d) { $log.debug(d); });
+  // or build with data and post then:
+  thornsResource.data(postData).post().then(function (d) { $log.debug(d); });
+  // or use all together in one line:
+  httpConfigured.service('cacti','/cut/the/thorns', postData).post();
+  // or use shorcut for the service:
+  httpConfigured.s.cacti('/cut/the/thorns', postData).post();
+  // and use shortcut for the httpConfigured:
+  httpC.s.cacti('/cut/the/thorns', postData).post();
+  
+})
+
+```
 ### Server-side configuration
 
 Conventionally, each configuration object should have the same path relative to the root of the api. E.g. if the API hosted with URI 
