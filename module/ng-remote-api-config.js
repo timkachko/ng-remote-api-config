@@ -14,81 +14,101 @@
 
       self.options = {
         apiConfigPath: '/ ',
-        apiRoot: 'http://localhost'
+        apiRoot: 'http://localhost',
+        sectionHandlers: {
+          services :{
+            valueProcessor: function (section, currentApiRoot) {
+              return _.mapValues(section, function(v){
+                return currentApiRoot + v })
+            }
+          },
+          envName : {
+            reduceFunction: function(reduced, current){
+              if (reduced!==current){
+                $log.warn('*** envName do not match: ', reduced, current);
+              }
+              return current;
+            }
+          }
+        }
       };
 
       self.$get = function ($http, $log, _, $q) {
 
-        var apiConfig = {};
+        var apiConfig = {}, options = self.options;
 
         /**
          * The function retrieves config from the apiRoot
          * then makes recursive calls to retrieve and merge the child configs
          *
-         * @param apiRoot
+         * @param currentApiRoot
          * @returns {angular.IPromise<TResult>}
          */
-        var buildEnv = function (apiRoot) {
+        var buildEnv = function (currentApiRoot) {
 
           var httpOptions = {
             method: 'GET',
             cache: 'false',
-            withCredentials: 'true',
-            url: apiRoot + self.options.apiConfigPath
+            url: currentApiRoot + self.options.apiConfigPath
           };
 
           return $http(httpOptions)
             .then(function (d) {
-              var env = {}, uiJson = d.data;
+              var processed = {}, currentConfigJson = d.data;
+              $log.debug('*** API CONFIG: for apiRoot:', currentApiRoot, currentConfigJson);
 
-              $log.debug('*** API CONFIG: for apiRoot:', apiRoot, uiJson);
-
-              if (!uiJson) {
-                throw(['*** ERROR API CONFIG: for apiRoot:' + apiRoot + ' ui-json.txt is not available ']);
+              if (!currentConfigJson) {
+                throw(['*** ERROR API CONFIG: for apiRoot:' + currentApiRoot + ' config json is not available ']);
               }
 
-              env.services = _(uiJson.services)
-                  .mapValues(function (servicePath) {
-                    return apiRoot + servicePath;
-                  })
-                  .valueOf() || {};
-
-              env.envName = uiJson.envName || 'na';
-
-              env.urls = uiJson.urls || {};
-
-              env.options = uiJson.options || {};
-
-              return {currentEnv: env, uiJson: uiJson};
-            })
-            .then(function (d) {
-              var uiJson = d.uiJson;
-
-              // query for the services on the linked hosts recursevly
-              return $q.all(uiJson.apiHosts
-                ? _(uiJson.apiHosts).mapValues(function (apiHost) { return buildEnv(apiHost);}).valueOf()
-                : null)
-                .then(function (apiConfigs) {
-                  // merging api configs
-                  if (!apiConfigs || _.isEmpty(apiConfigs)) {
-                    return d.currentEnv;
+              _.forEach(currentConfigJson, function(v, k){
+                // omit keys beginning with '$'
+                if (k[0]!=='$'){
+                  if (options.sectionHandlers[k] && options.sectionHandlers[k].valueProcessor){
+                    processed[k] = options.sectionHandlers[k].valueProcessor(v, currentApiRoot);
                   } else {
-                    return _(apiConfigs)
-                      .assign({currentEnv__: d.currentEnv})
-                      .reduce(function (r, s) {
-                        //debugger;
-                        if (r.envName !== s.envName) {
-                          $log.info('*** API CONFIG : the env names do not fit:', r.envName, s.envName);
-                        }
-
-                        r.services = _.assign(r.services || {}, s.services || {});
-                        r.urls = _.assign(r.urls || {}, s.urls || {});
-                        r.options = _.assign(r.options || {}, s.options || {});
-                        return r;
-
-                      });
+                    processed[k] = v;
                   }
-                });
+                }
+              });
+
+              if(currentConfigJson.$apiHosts) {
+                // query for the services on the linked hosts recursevly
+                return $q.all(
+                  _(currentConfigJson.$apiHosts)
+                  .mapValues(function (apiHost) { return buildEnv(apiHost);})
+                  .valueOf())
+                  .then(function (apiConfigs) {
+                    // merging api configs
+                    if (!apiConfigs || _.isEmpty(apiConfigs)) {
+                      return processed;
+                    } else {
+                      return _(apiConfigs)
+                        .assign({currentEnv__: processed})
+                        .reduce(function (result, currentObj) {
+                          _.forEach(currentObj, function(v, k){
+                            // omit keys beginning with '$'
+                            if (k[0]!=='$'){
+                              if (options.sectionHandlers[k] && options.sectionHandlers[k].reduceFunction){
+                                result[k] = options.sectionHandlers[k].reduceFunction(result[k], v);
+                              } else {
+                                if (_.isObject(v)){
+                                  result[k] = _.assign(result[k] || {}, v);
+                                } else {
+                                  result[k] = v;
+                                }
+                              }
+                            }
+                          });
+
+                          return result;
+
+                        });
+                    }
+                  })
+              } else {
+                return $q.when(processed);
+              };
             })
 
         };   // buildEnv

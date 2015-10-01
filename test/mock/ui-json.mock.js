@@ -16,7 +16,7 @@ angular
         },
         urls: {anotherSiteAboutPlants: "https://some-site.org"},
         options: {plantsPictureFormat: "##plantname##-picture-small.jpg"},
-        apiHosts: {
+        $apiHosts: {
           // reference to the cultivated plants API
           cultivatedPlants: 'http://cultivated.com',
         },
@@ -37,7 +37,7 @@ angular
           cacti:'/green-hedgehogs/strange-plant-to-enjoy'
         },
         options: {cultivatingMethodPicture: "##cutlivator##-avatar.jpg"},
-        apiHosts: {
+        $apiHosts: {
           // references to the other sub-APIs
           veggies: 'http://veggies.com',
           fruits: 'http://fruits.com'

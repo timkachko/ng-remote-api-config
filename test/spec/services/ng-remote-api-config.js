@@ -198,7 +198,6 @@ describe('Serivice: api config -- plants ', function () {
       httpConfigured.service('cucumbers').resource('/salted').get()
         .then(
         function (d) {
-          console.log(d);
           expect(d.data.collection).toEqual('pickle');
         })
         .catch(function (e) {console.error(e);})

@@ -29,6 +29,7 @@ To add it in your project:
   apiConfigServiceProvider.options.apiRoot = 'http://plants.com';
 });
 ```
+It is good idea to use the [grunt-ng-constant](https://github.com/werk85/grunt-ng-constant) for configuration.
  
 - inject the service in any of your controllers/services to have configuration promise, which will be resolved when all 
 the data is collected: 

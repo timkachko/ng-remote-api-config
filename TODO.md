@@ -13,9 +13,9 @@ v0.1.1
 - ~~shortcuts for services~~
 
 v0.1.x
-- build resource from parent resource by adding to the path
-- pre-configure resources for httpConfigured
-- create configurable processor functions
+- create configurable sections handlers
+- rename preconfigured sections
+- create $external section handler
 
 
 [back to readme](README.md)
