@@ -16,15 +16,16 @@
         apiConfigPath: '/ ',
         apiRoot: 'http://localhost',
         sectionHandlers: {
-          services :{
+          services: {
             valueProcessor: function (section, currentApiRoot) {
-              return _.mapValues(section, function(v){
-                return currentApiRoot + v })
+              return _.mapValues(section, function (v) {
+                return currentApiRoot + v
+              })
             }
           },
-          envName : {
-            reduceFunction: function(reduced, current){
-              if (reduced!==current){
+          envName: {
+            reduceFunction: function (reduced, current) {
+              if (reduced !== current) {
                 $log.warn('*** envName do not match: ', reduced, current);
               }
               return current;
@@ -35,94 +36,107 @@
 
       self.$get = function ($http, $log, _, $q) {
 
-        var apiConfig = {}, options = self.options;
+        var apiConfig = {},
+          options = self.options,
+        // cache for promise -- if it is retrieving/has been retrieved already, don't try again
+          apiRootPromise = null;
+
+        apiConfig.get = function () {
+          apiRootPromise = apiRootPromise || retrieveConfig(self.options.apiRoot);
+          return apiRootPromise;
+        };
 
         /**
          * The function retrieves config from the apiRoot
          * then makes recursive calls to retrieve and merge the child configs
          *
-         * @param currentApiRoot
+         * @param {string} currentApiRoot
+         * @param {Object} [configBody] if it is not on the server (for $external section)
          * @returns {angular.IPromise<TResult>}
+         *
          */
-        var buildEnv = function (currentApiRoot) {
 
-          var httpOptions = {
-            method: 'GET',
-            cache: 'false',
-            url: currentApiRoot + self.options.apiConfigPath
-          };
-
-          return $http(httpOptions)
-            .then(function (d) {
-              var processed = {}, currentConfigJson = d.data;
-              $log.debug('*** API CONFIG: for apiRoot:', currentApiRoot, currentConfigJson);
-
-              if (!currentConfigJson) {
-                throw(['*** ERROR API CONFIG: for apiRoot:' + currentApiRoot + ' config json is not available ']);
-              }
-
-              _.forEach(currentConfigJson, function(v, k){
-                // omit keys beginning with '$'
-                if (k[0]!=='$'){
-                  if (options.sectionHandlers[k] && options.sectionHandlers[k].valueProcessor){
-                    processed[k] = options.sectionHandlers[k].valueProcessor(v, currentApiRoot);
-                  } else {
-                    processed[k] = v;
-                  }
-                }
-              });
-
-              if(currentConfigJson.$apiHosts) {
-                // query for the services on the linked hosts recursevly
-                return $q.all(
-                  _(currentConfigJson.$apiHosts)
-                  .mapValues(function (apiHost) { return buildEnv(apiHost);})
-                  .valueOf())
-                  .then(function (apiConfigs) {
-                    // merging api configs
-                    if (!apiConfigs || _.isEmpty(apiConfigs)) {
-                      return processed;
-                    } else {
-                      return _(apiConfigs)
-                        .assign({currentEnv__: processed})
-                        .reduce(function (result, currentObj) {
-                          _.forEach(currentObj, function(v, k){
-                            // omit keys beginning with '$'
-                            if (k[0]!=='$'){
-                              if (options.sectionHandlers[k] && options.sectionHandlers[k].reduceFunction){
-                                result[k] = options.sectionHandlers[k].reduceFunction(result[k], v);
-                              } else {
-                                if (_.isObject(v)){
-                                  result[k] = _.assign(result[k] || {}, v);
-                                } else {
-                                  result[k] = v;
-                                }
-                              }
-                            }
-                          });
-
-                          return result;
-
-                        });
-                    }
-                  })
-              } else {
-                return $q.when(processed);
-              };
-            })
-
+        var retrieveConfig = function (currentApiRoot, configBody) {
+          if (configBody) {
+            return processConfig(configBody, currentApiRoot)
+          } else {
+            var httpOptions = {
+              method: 'GET',
+              cache: 'false',
+              url: currentApiRoot + self.options.apiConfigPath
+            };
+            return $http(httpOptions)
+              .then(function (d) {return processConfig(d.data, currentApiRoot)})
+          }
         };   // buildEnv
 
-        // cache for promise -- if it is retrieving/has been retrieved already, don't try again
-        var apiRootPromise = null;
+        var processConfig = function (currentConfigJson, currentApiRoot) {
 
-        /**
-         *
-         * @returns {Promise}
-         */
-        apiConfig.get = function () {
-          apiRootPromise = apiRootPromise || buildEnv(self.options.apiRoot);
-          return apiRootPromise;
+          var processed = {};
+          $log.debug('*** API CONFIG: for apiRoot:', currentApiRoot, currentConfigJson);
+
+          if (!currentConfigJson) {
+            throw(['*** ERROR API CONFIG: for apiRoot:' + currentApiRoot + ' config json is not available ']);
+          }
+
+          _.forEach(currentConfigJson, function (v, k) {
+            // omit keys beginning with '$'
+            if (k[0] !== '$') {
+              if (options.sectionHandlers[k] && options.sectionHandlers[k].valueProcessor) {
+                processed[k] = options.sectionHandlers[k].valueProcessor(v, currentApiRoot);
+              } else {
+                processed[k] = v;
+              }
+            }
+          });
+
+          var externalConfigs = {};
+          if (currentConfigJson.$external) {
+            externalConfigs =
+              _.mapValues(
+                currentConfigJson.$external,
+                function (config) {return retrieveConfig(config.$url, config);})
+          }
+
+          var currentConfigs = {};
+          if (currentConfigJson.$apiHosts) {
+            // query for the services on the linked hosts recursevly
+            currentConfigs =
+              _.mapValues(
+                currentConfigJson.$apiHosts,
+                function (apiHost) { return retrieveConfig(apiHost);})
+                .valueOf()
+            //.then(mergeConfigs);
+          }
+
+
+          var mergeConfigs = function (apiConfigs) {
+            return _(apiConfigs)
+              //.assign({currentEnv__: processed})
+              .reduce(function (result, currentObj) {
+                _.forEach(currentObj, function (v, k) {
+                  // omit keys beginning with '$'
+                  if (k[0] !== '$') {
+                    if (options.sectionHandlers[k] && options.sectionHandlers[k].reduceFunction) {
+                      result[k] = options.sectionHandlers[k].reduceFunction(result[k], v);
+                    } else {
+                      if (_.isObject(v)) {
+                        result[k] = _.assign(result[k] || {}, v);
+                      } else {
+                        result[k] = v;
+                      }
+                    }
+                  }
+                });
+                return result;
+              });
+          };
+
+          return $q.all(
+            _(currentConfigs)
+              .assign({currentEnv__: processed}, externalConfigs)
+              .valueOf()
+          ).then(mergeConfigs);
         };
 
         /**
@@ -155,9 +169,7 @@
         };
 
         apiConfig.get().then(function (config) {$log.debug('*** API CONFIG retrieved:', config); });
-
         return apiConfig;
-
       }
     }
   );

@@ -24,7 +24,10 @@ describe('Serivice: api config -- plants ', function () {
     $httpBackend.whenGET('http://fruits.com/ui-json.json').respond(uiJson.fruits);
     $httpBackend.whenGET('http://veggies.com/ui-json.json').respond(uiJson.veggies);
     $httpBackend.whenGET('http://cultivated.com/ui-json.json').respond(uiJson.cultivatedPlants);
-    $httpBackend.whenGET('http://veggies.com/green/cucumbers').respond({collection: 'cucumbers'});
+
+    $httpBackend.when('GET', 'http://veggies.com/green/cucumbers', function (d) {
+      return !!d;
+    }).respond({collection: 'cucumbers'});
 
     $httpBackend.when('GET', 'http://veggies.com/green/cucumbers/salted', function (d) {
       return !!d;
@@ -34,12 +37,18 @@ describe('Serivice: api config -- plants ', function () {
       return JSON.parse(d).pepper === 'red';
     }).respond({collection: 'hot'});
 
-    $httpBackend.when('DELETE', 'http://veggies.com/green/cucumbers/salted', function (d) {
+    $httpBackend.when('POST', 'http://veggies.com/green/cucumbers/salted', function (d) {
+      return JSON.parse(d).pepper === 'green';
+    }).respond({collection: 'mild'});
+
+    $httpBackend.when('GET', 'http://veggies.com/green/cucumbers/salted', function (d) {
       return JSON.parse(d).pepper === 'green';
     }).respond({collection: 'mild'});
 
     $httpBackend.whenGET('http://cultivated.com/green-hedgehogs/strange-plant-to-enjoy/cut/the/thorns')
       .respond('best cactus - tested cactus');
+
+    $httpBackend.whenGET('http://roots.org/potatoes/regular/sweet').respond({collection: 'sweet'});
   }));
 
   afterEach(
@@ -221,7 +230,7 @@ describe('Serivice: api config -- plants ', function () {
 
   it('httpConfigured.service should allow all three arguments', function (done) {
     apiConfigService.get().then(function () {
-      httpConfigured.service('cucumbers', '/salted', {pepper: 'green'}).delete()
+      httpConfigured.service('cucumbers', '/salted', {pepper: 'green'}).post()
         .then(
         function (d) {
           expect(d.data.collection).toEqual('mild');
@@ -235,7 +244,7 @@ describe('Serivice: api config -- plants ', function () {
 
   it('httpConfigured.s contains shortcut to service', function (done) {
     apiConfigService.get().then(function () {
-      httpConfigured.s.cucumbers('/salted', {pepper: 'green'}).delete()
+      httpConfigured.s.cucumbers('/salted', {pepper: 'green'}).post()
         .then(
         function (d) {
           expect(d.data.collection).toEqual('mild');
@@ -248,10 +257,24 @@ describe('Serivice: api config -- plants ', function () {
 
   it('httpC defined as shortname', function (done) {
     apiConfigService.get().then(function () {
-      httpC.s.cucumbers('/salted', {pepper: 'green'}).delete()
+      httpC.s.cucumbers('/salted', {pepper: 'green'}).post()
         .then(
         function (d) {
           expect(d.data.collection).toEqual('mild');
+        })
+        .catch(function (e) {console.error(e);})
+        .finally(done);
+    });
+    $httpBackend.flush();
+  });
+
+
+  it('$external section works', function (done) {
+    apiConfigService.get().then(function () {
+      httpC.s.potatoes('/sweet').get()
+        .then(
+        function (d) {
+          expect(d.data.collection).toEqual('sweet');
         })
         .catch(function (e) {console.error(e);})
         .finally(done);

@@ -34,7 +34,7 @@ angular
       cultivatedPlants: {
         envName: 'qa',
         services: {
-          cacti:'/green-hedgehogs/strange-plant-to-enjoy'
+          cacti: '/green-hedgehogs/strange-plant-to-enjoy'
         },
         options: {cultivatingMethodPicture: "##cutlivator##-avatar.jpg"},
         $apiHosts: {
@@ -45,7 +45,8 @@ angular
       },
 
       // config for the fruiteesh API
-      fruits: {envName: 'qa',
+      fruits: {
+        envName: 'qa',
         services: {apples: '/not-oranges/apples', bananas: '/not-oranges/bananas'}
       },
 
@@ -53,7 +54,7 @@ angular
       veggies: {
         envName: 'qa',
         urls: {callUsToCultivateVeggies: "https://veggies-are-good.org"},
-        services: { cucumbers: '/green/cucumbers', tomatoes: '/red/tomatoes'},
+        services: {cucumbers: '/green/cucumbers', tomatoes: '/red/tomatoes'},
 
         // if you need to have custom clauses as following
         // you should configurate the handlers for it,
@@ -61,6 +62,15 @@ angular
         anyCustomData: {
           // to be collected and added to another half
           theHalfOfUltimateAnswer: 21
+        },
+        $external: {
+          roots: {
+            $url: 'http://roots.org',
+            services: {
+              potatoes: '/potatoes/regular',
+              carrots: '/carrots/yellow'
+            }
+          }
         }
       }
     }
