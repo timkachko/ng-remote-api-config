@@ -104,11 +104,14 @@ Please have a look into the [ui-json.mock.js](test/mock/ui-json.mock.js) and Exh
 
 You can use any names for sections of the configuration those are not begin with the '$' character, otherwise 
 they are ignored during merge. The names *$apiHosts* and *$external* are reserved:
+
 - The *$apiHosts* section contains root urls on the other hosts, which supply the same configuration for the hosted API
 - If there is no possibility to put the configuration on the external host, it can be done in the *$external* section, 
 which contain the url of the root api URL and the configuration JSON.
+
 The sections are merged with the priority of the parent, so it doesn't allow to override the value by another with joining 
-another child configuration.  
+another child configuration.
+
 ```
 $external: {
         roots: {
