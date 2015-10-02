@@ -109,37 +109,52 @@ they are ignored during merge. The names *$apiHosts* and *$external* are reserve
 which contain the url of the root api URL and the configuration JSON.
 The sections are merged with the priority of the parent, so it doesn't allow to override the value by another with joining 
 another child configuration.  
-
-### Section handlers
-Section *services* used for creating service urls, and section *envName* is used for checking the basic consistency 
-along environment. The developer can determine custom merging rules and value processors as it done in the options for default ones:
 ```
- self.options = {
-        apiConfigPath: '/ ',
-        apiRoot: 'http://localhost',
-
-        sectionHandlers: {
+$external: {
+        roots: {
+          $url: 'http://roots.org',
           services: {
-          // gets section object and API root URL, returns transformed section object
-            valueProcessor: function (section, currentApiRoot) { 
-              return _.mapValues(section, function (v) {
-                return currentApiRoot + v
-              })
-            }
-          },
-
-          envName: {
-            // merging rule: gets summary (merged) object and section object, returns result of merging 
-            // in this case no merging happens , just return current
-            reduceFunction: function (reduced, current) {
-              if (reduced !== current) {
-                $log.warn('*** envNames do not match: ', reduced, current);
-              }
-              return current;
-            }
+            potatoes: '/potatoes/regular',
+            carrots: '/carrots/yellow'
           }
         }
-      };
+      }
+```
+
+#### Section handlers
+Section *services* used for creating service urls, and section *envName* is used for checking the basic consistency 
+along environment. If the section is an object, all its properties are merged to the parent. 
+If it is plain value, it is merged to the parent, but not override existing value there. 
+
+The developer can determine custom merging rules and value processors as it done in the options for default ones:
+```
+self.options = {
+      apiConfigPath: '/ ',
+      apiRoot: 'http://localhost',
+
+      sectionHandlers: {
+        services: {
+        // gets section object and API root URL, returns transformed section object
+          valueProcessor: function (section, currentApiRoot) { 
+            return _.mapValues(section, function (v) {
+              return currentApiRoot + v
+            })
+          }
+        },
+
+        envName: {
+          // merging rule: gets summary (merged) object and section object, 
+          // returns result of merging.
+          // in this case no merging happens , just return current
+          reduceFunction: function (reduced, current) {
+            if (reduced !== current) {
+              $log.warn('*** envNames do not match: ', reduced, current);
+            }
+            return current;
+          }
+        }
+      }
+    };
 ```
 
 ## Testing
