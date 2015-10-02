@@ -15,18 +15,23 @@
       self.options = {
         apiConfigPath: '/ ',
         apiRoot: 'http://localhost',
+
         sectionHandlers: {
           services: {
+            // gets section object and API root URL, returns transformed section object
             valueProcessor: function (section, currentApiRoot) {
               return _.mapValues(section, function (v) {
                 return currentApiRoot + v
               })
             }
           },
+
           envName: {
+            // merging rule: gets summary (merged) object and section object, returns result of merging
+            // in this case no merging happens , just return current
             reduceFunction: function (reduced, current) {
               if (reduced !== current) {
-                $log.warn('*** envName do not match: ', reduced, current);
+                $log.warn('*** envNames do not match: ', reduced, current);
               }
               return current;
             }
@@ -109,7 +114,6 @@
             //.then(mergeConfigs);
           }
 
-
           var mergeConfigs = function (apiConfigs) {
             return _(apiConfigs)
               //.assign({currentEnv__: processed})
@@ -137,6 +141,7 @@
               .assign({currentEnv__: processed}, externalConfigs)
               .valueOf()
           ).then(mergeConfigs);
+
         };
 
         /**
@@ -146,7 +151,7 @@
          * @param options Object
          * @returns Promise
          */
-          //
+
         apiConfig.getUrl = function (options) {
           if (angular.isString(options.url)) {
             return $q.when(options);

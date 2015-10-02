@@ -90,15 +90,57 @@ may look as:
 ```
 ### Server-side configuration
 
-Conventionally, each configuration object should have the same path relative to the root of the api. E.g. if the API hosted with URI 
+Conventionally, each configuration object should have the same path relatively to the root of the api. E.g. if the API hosted with URI 
 the `http://kitty.cat/api`, the best way is to have the server to respond with the configuration object on the GET request
 to the root of the api (apiConfigPath is set '/' by default). If we have the config on the different path, e.g. 
 `http://kitty.cat/api/config/api.json`, we should set apiConfigPath = '/config/api.json' and it will be the same for the
 other servers. Lets say, a part of the API is located on `http://cats-food/prices`. Then the configuration object should be 
 available on `http://cats-food/prices/config/api.json`, so the client apps are able to retrieve it with the 
-same path for each server. Currently the dynamic change of the config path is not implemented as having a low priority.
+same path for each server. If there is no possibility to put the configuration on the external host, it can be done in the *$external* section.
  
 Please have a look into the [ui-json.mock.js](test/mock/ui-json.mock.js) and Exhibit A for the sample configuration objects.
+
+#### Format of the server-side configuration JSON
+
+You can use any names for sections of the configuration those are not begin with the '$' character, otherwise 
+they are ignored during merge. The names *$apiHosts* and *$external* are reserved:
+- The *$apiHosts* section contains root urls on the other hosts, which supply the same configuration for the hosted API
+- If there is no possibility to put the configuration on the external host, it can be done in the *$external* section, 
+which contain the url of the root api URL and the configuration JSON.
+The sections are merged with the priority of the parent, so it doesn't allow to override the value by another with joining 
+another child configuration.  
+
+### Section handlers
+Section *services* used for creating service urls, and section *envName* is used for checking the basic consistency 
+along environment. The developer can determine custom merging rules and value processors as it done in the options for default ones:
+```
+ self.options = {
+        apiConfigPath: '/ ',
+        apiRoot: 'http://localhost',
+
+        sectionHandlers: {
+          services: {
+          // gets section object and API root URL, returns transformed section object
+            valueProcessor: function (section, currentApiRoot) { 
+              return _.mapValues(section, function (v) {
+                return currentApiRoot + v
+              })
+            }
+          },
+
+          envName: {
+            // merging rule: gets summary (merged) object and section object, returns result of merging 
+            // in this case no merging happens , just return current
+            reduceFunction: function (reduced, current) {
+              if (reduced !== current) {
+                $log.warn('*** envNames do not match: ', reduced, current);
+              }
+              return current;
+            }
+          }
+        }
+      };
+```
 
 ## Testing
 
