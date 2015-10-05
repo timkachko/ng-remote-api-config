@@ -15,6 +15,7 @@
       self.options = {
         apiConfigPath: '/ ',
         apiRoot: 'http://localhost',
+        override: {},
 
         sectionHandlers: {
           services: {
@@ -47,7 +48,12 @@
           apiRootPromise = null;
 
         apiConfig.get = function () {
-          apiRootPromise = apiRootPromise || retrieveConfig(self.options.apiRoot);
+          apiRootPromise = apiRootPromise ||
+            retrieveConfig(self.options.apiRoot).then(
+              function(config){
+                return _.merge({}, config, self.options.override);
+              }
+            );
           return apiRootPromise;
         };
 

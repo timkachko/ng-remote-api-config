@@ -15,4 +15,9 @@ angular
     //$httpProvider.defaults.withCredentials = true;
     apiConfigServiceProvider.options.apiConfigPath = '/ui-json.json';
     apiConfigServiceProvider.options.apiRoot = 'http://plants.com';
+    apiConfigServiceProvider.options.override = {
+      services: {
+        forbiddenFruit:'https://localhost/big-apple'
+      }
+    };
   });

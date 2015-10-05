@@ -160,6 +160,19 @@ self.options = {
     };
 ```
 
+### Override the config with temporary values
+
+During development may happen that some services located on the different URLs, others than even dev config says. 
+To override the config values use in the config phase of your application something along the lines:
+
+```
+ apiConfigServiceProvider.options.override = {
+      services: {
+        forbiddenFruit:'https://localhost/big-apple'
+      }
+    };
+```
+
 ## Testing
 
 Running `grunt test` will run the unit tests with karma.

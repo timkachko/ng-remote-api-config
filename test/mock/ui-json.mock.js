@@ -47,7 +47,7 @@ angular
       // config for the fruiteesh API
       fruits: {
         envName: 'qa',
-        services: {apples: '/not-oranges/apples', bananas: '/not-oranges/bananas'}
+        services: {apples: '/not-oranges/apples', bananas: '/not-oranges/bananas', forbiddenFruit:'/big-apple'}
       },
 
       // config for the vegetables API

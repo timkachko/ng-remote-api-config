@@ -282,5 +282,20 @@ describe('Serivice: api config -- plants ', function () {
     $httpBackend.flush();
   });
 
+  it('override works', function (done) {
+    apiConfigService.get().then(
+      function (d) {
+        expect(d.envName).toEqual('qa');
+        expect(d.services.apples).toEqual('http://fruits.com/not-oranges/apples');
+        expect(d.services.bananas).toEqual('http://fruits.com/not-oranges/bananas');
+        expect(d.services.cucumbers).toEqual('http://veggies.com/green/cucumbers');
+        expect(d.services.tomatoes).toEqual('http://veggies.com/red/tomatoes');
+        expect(d.services.cacti).toEqual('http://cultivated.com/green-hedgehogs/strange-plant-to-enjoy');
+        expect(d.services.forbiddenFruit).toEqual('https://localhost/big-apple');
+      })
+      .finally(done);
+    $httpBackend.flush();
+  });
+
 });
 
