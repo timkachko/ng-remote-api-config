@@ -1,7 +1,7 @@
 {
   "name": "ng-remote-api-config",
   "main": "dist/module/ng-remote-api-config.js",
-  "version": "0.1.0",
+  "version": "0.1.3",
   "ignore": [
     "**/*",
     "!/dist",
