@@ -14,95 +14,140 @@
 
       self.options = {
         apiConfigPath: '/ ',
-        apiRoot: 'http://localhost'
+        apiRoot: 'http://localhost',
+        override: {},
+
+        sectionHandlers: {
+          services: {
+            // gets section object and API root URL, returns transformed section object
+            valueProcessor: function (section, currentApiRoot) {
+              return _.mapValues(section, function (v) {
+                return currentApiRoot + v
+              })
+            }
+          },
+
+          envName: {
+            // merging rule: gets summary (merged) object and section object, returns result of merging
+            // in this case no merging happens , just return current
+            reduceFunction: function (reduced, current) {
+              if (reduced !== current) {
+                $log.warn('*** envNames do not match: ', reduced, current);
+              }
+              return current;
+            }
+          }
+        }
       };
 
       self.$get = function ($http, $log, _, $q) {
 
-        var apiConfig = {};
+        var apiConfig = {},
+          options = self.options,
+        // cache for promise -- if it is retrieving/has been retrieved already, don't try again
+          apiRootPromise = null;
+
+        apiConfig.get = function () {
+          apiRootPromise = apiRootPromise ||
+            retrieveConfig(self.options.apiRoot).then(
+              function(config){
+                return _.merge({}, config, self.options.override);
+              }
+            );
+          return apiRootPromise;
+        };
 
         /**
          * The function retrieves config from the apiRoot
          * then makes recursive calls to retrieve and merge the child configs
          *
-         * @param apiRoot
+         * @param {string} currentApiRoot
+         * @param {Object} [configBody] if it is not on the server (for $external section)
          * @returns {angular.IPromise<TResult>}
+         *
          */
-        var buildEnv = function (apiRoot) {
 
-          var httpOptions = {
-            method: 'GET',
-            cache: 'false',
-            withCredentials: 'true',
-            url: apiRoot + self.options.apiConfigPath
-          };
-
-          return $http(httpOptions)
-            .then(function (d) {
-              var env = {}, uiJson = d.data;
-
-              $log.debug('*** API CONFIG: for apiRoot:', apiRoot, uiJson);
-
-              if (!uiJson) {
-                throw(['*** ERROR API CONFIG: for apiRoot:' + apiRoot + ' ui-json.txt is not available ']);
-              }
-
-              env.services = _(uiJson.services)
-                  .mapValues(function (servicePath) {
-                    return apiRoot + servicePath;
-                  })
-                  .valueOf() || {};
-
-              env.envName = uiJson.envName || 'na';
-
-              env.urls = uiJson.urls || {};
-
-              env.options = uiJson.options || {};
-
-              return {currentEnv: env, uiJson: uiJson};
-            })
-            .then(function (d) {
-              var uiJson = d.uiJson;
-
-              // query for the services on the linked hosts recursevly
-              return $q.all(uiJson.apiHosts
-                ? _(uiJson.apiHosts).mapValues(function (apiHost) { return buildEnv(apiHost);}).valueOf()
-                : null)
-                .then(function (apiConfigs) {
-                  // merging api configs
-                  if (!apiConfigs || _.isEmpty(apiConfigs)) {
-                    return d.currentEnv;
-                  } else {
-                    return _(apiConfigs)
-                      .assign({currentEnv__: d.currentEnv})
-                      .reduce(function (r, s) {
-                        //debugger;
-                        if (r.envName !== s.envName) {
-                          $log.info('*** API CONFIG : the env names do not fit:', r.envName, s.envName);
-                        }
-
-                        r.services = _.assign(r.services || {}, s.services || {});
-                        r.urls = _.assign(r.urls || {}, s.urls || {});
-                        r.options = _.assign(r.options || {}, s.options || {});
-                        return r;
-
-                      });
-                  }
-                });
-            })
-
+        var retrieveConfig = function (currentApiRoot, configBody) {
+          if (configBody) {
+            return processConfig(configBody, currentApiRoot)
+          } else {
+            var httpOptions = {
+              method: 'GET',
+              cache: 'false',
+              url: currentApiRoot + self.options.apiConfigPath
+            };
+            return $http(httpOptions)
+              .then(function (d) {return processConfig(d.data, currentApiRoot)})
+          }
         };   // buildEnv
 
-        // cache for promise -- if it is retrieving/has been retrieved already, don't try again
-        var apiRootPromise = null;
+        var processConfig = function (currentConfigJson, currentApiRoot) {
 
-        /**
-         *
-         * @returns {Promise}
-         */
-        apiConfig.get = function () {
-          apiRootPromise = apiRootPromise || buildEnv(self.options.apiRoot);
-          return apiRootPromise;
+          var processed = {};
+          $log.debug('*** API CONFIG: for apiRoot:', currentApiRoot, currentConfigJson);
+
+          if (!currentConfigJson) {
+            throw(['*** ERROR API CONFIG: for apiRoot:' + currentApiRoot + ' config json is not available ']);
+          }
+
+          _.forEach(currentConfigJson, function (v, k) {
+            // omit keys beginning with '$'
+            if (k[0] !== '$') {
+              if (options.sectionHandlers[k] && options.sectionHandlers[k].valueProcessor) {
+                processed[k] = options.sectionHandlers[k].valueProcessor(v, currentApiRoot);
+              } else {
+                processed[k] = v;
+              }
+            }
+          });
+
+          var externalConfigs = {};
+          if (currentConfigJson.$external) {
+            externalConfigs =
+              _.mapValues(
+                currentConfigJson.$external,
+                function (config) {return retrieveConfig(config.$url, config);})
+          }
+
+          var currentConfigs = {};
+          if (currentConfigJson.$apiHosts) {
+            // query for the services on the linked hosts recursevly
+            currentConfigs =
+              _.mapValues(
+                currentConfigJson.$apiHosts,
+                function (apiHost) { return retrieveConfig(apiHost);})
+                .valueOf()
+            //.then(mergeConfigs);
+          }
+
+          var mergeConfigs = function (apiConfigs) {
+            return _(apiConfigs)
+              //.assign({currentEnv__: processed})
+              .reduce(function (result, currentObj) {
+                _.forEach(currentObj, function (v, k) {
+                  // omit keys beginning with '$'
+                  if (k[0] !== '$') {
+                    if (options.sectionHandlers[k] && options.sectionHandlers[k].reduceFunction) {
+                      result[k] = options.sectionHandlers[k].reduceFunction(result[k], v);
+                    } else {
+                      if (_.isObject(v)) {
+                        result[k] = _.assign(result[k] || {}, v);
+                      } else {
+                        result[k] = v;
+                      }
+                    }
+                  }
+                });
+                return result;
+              });
+          };
+
+          return $q.all(
+            _(currentConfigs)
+              .assign({currentEnv__: processed}, externalConfigs)
+              .valueOf()
+          ).then(mergeConfigs);
+
         };
 
         /**
@@ -112,7 +157,7 @@
          * @param options Object
          * @returns Promise
          */
-          //
+
         apiConfig.getUrl = function (options) {
           if (angular.isString(options.url)) {
             return $q.when(options);
@@ -135,9 +180,7 @@
         };
 
         apiConfig.get().then(function (config) {$log.debug('*** API CONFIG retrieved:', config); });
-
         return apiConfig;
-
       }
     }
   );
@@ -148,20 +191,99 @@
    * but if url is not defined, it is trying to retrieve it from the config
    */
   ngRemoteApiConfigModule.factory('httpConfigured', function ($http, apiConfigService) {
+    var GET = 'GET',
+      POST = 'POST',
+      DELETE = 'DELETE',
+      PUT = 'PUT';
 
-    var self = function (options) {
-      if (angular.isString(options.url)) {
-        return $http(options);
-      } else {
-        return apiConfigService.getUrl(options)
-          .then(function (opts) {
-            return $http(opts);
-          })
-      }
-    };
+    var build = function (initialOptions) {
+      // you can call httpConfigured(fullOptions) it returns promise
+      var core = function (fullOptions) {
+        if (angular.isString(fullOptions.url)) {
+          return $http(fullOptions);
+        } else {
+          return apiConfigService.getUrl(fullOptions)
+            .then(function (config) {
+              return $http(config);
+            })
+        }
+      };
+      // or you can build options and then call method
+      core.options = initialOptions;
+      /**
+       *
+       * @param {string} serviceName
+       * @optional {string} [resourcePath]
+       * @param {object} [data]
+       * @returns {Function}
+       */
+      core.service = function (serviceName, resourcePath, data) {
+        core.data(data).resource(resourcePath);
+        angular.extend(core.options, {serviceName: serviceName});
+        return core;
+      };
 
-    return self;
-  });
+      core.resource = function (resourcePath, data) {
+        core.data(data);
+        if (angular.isString(resourcePath) && resourcePath) {
+          angular.extend(core.options, {resourcePath: resourcePath});
+        }
+        return core;
+      };
+
+      core.get = function (data) {
+        core.data(data);
+        angular.extend(core.options, {method: GET});
+        return core(core.options);
+      };
+
+      core.post = function (data) {
+        core.data(data);
+        angular.extend(core.options, {method: POST});
+        return core(core.options);
+      };
+
+      core.put = function (data) {
+        core.data(data);
+        angular.extend(core.options, {method: PUT});
+        return core(core.options);
+      };
+
+      core.delete = function (data) {
+        core.data(data);
+        angular.extend(core.options, {method: DELETE});
+        return core(core.options);
+      };
+
+      core.data = function (data) {
+        if (angular.isObject(data) && data) {
+          angular.extend(core.options, {data: data});
+        }
+        return core;
+      };
+
+      // define shourtcuts to the services
+
+      function makeShortcut(serviceName) {
+        return function (resourcePath, data) {
+          return core.service(serviceName, resourcePath, data);
+        }
+      };
+
+      core.s = {};
+
+      apiConfigService.get().then(function (config) {
+        angular.forEach(config.services, function (serviceUrl, serviceName) {
+          core.s[serviceName] = makeShortcut(serviceName);
+        });
+      });
+      return core;
+    }
+
+    return build({});
+  })
+    // define shortname for httpConfigured
+    .factory('httpC', function (httpConfigured) {return httpConfigured;});
 
 }(window.angular));
 
